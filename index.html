@@ -3,378 +3,353 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>ระบบเลือกตั้ง</title>
-<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700;800;900&family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet">
+<title>เลือกตั้ง</title>
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700;800;900&family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-:root{
-  --bg:#0a0e1a; --surface:#111827; --surface2:#1a2235;
-  --gold:#f5c842; --gold2:#d4a020;
-  --blue:#1d4ed8; --blue2:#3b82f6;
-  --red:#dc2626; --red2:#ef4444;
-  --green:#059669; --green2:#10b981;
-  --gray:#6b7280; --gray2:#9ca3af;
-  --text:#f3f4f6; --text2:#d1d5db;
-  --border:rgba(255,255,255,0.08);
-  --gold-glow:rgba(245,200,66,0.15);
-  --COLORS:#1d4ed8,#dc2626,#059669,#7c3aed,#d97706,#0e7490;
+:root {
+  --bg:#060d1a; --surface:#0d1e35; --surface2:#132540;
+  --gold:#f0c040; --gold2:#d4a020; --gold-glow:rgba(240,192,64,0.15);
+  --green:#10b981; --red-c:#ef4444; --gray:#6b7a90; --text:#e8eef8;
+  --border:rgba(240,192,64,0.18); --border2:rgba(255,255,255,0.08);
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 html,body{height:100%;overflow:hidden;}
-body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);height:100vh;}
+body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);height:100vh;overflow:hidden;}
+body::before{content:'';position:fixed;inset:0;
+  background:radial-gradient(ellipse at 20% 10%,rgba(26,79,186,0.35) 0%,transparent 55%),
+             radial-gradient(ellipse at 80% 90%,rgba(10,20,50,0.7) 0%,transparent 55%);
+  pointer-events:none;z-index:0;}
 
 .screen{display:none;position:fixed;inset:0;z-index:1;flex-direction:column;overflow:hidden;}
 .screen.active{display:flex;}
 
-/* ===================== SPLASH ===================== */
-#splash{align-items:center;justify-content:center;gap:1rem;padding:2rem;
-  background:radial-gradient(ellipse at 30% 20%, rgba(29,78,216,0.3) 0%, transparent 55%),
-             radial-gradient(ellipse at 70% 80%, rgba(220,38,38,0.2) 0%, transparent 55%);}
-.splash-logo{display:flex;align-items:center;gap:0.8rem;margin-bottom:0.5rem;}
-.logo-emblem{width:64px;height:64px;border-radius:50%;
+/* ===== SPLASH ===== */
+#splash{align-items:center;justify-content:center;gap:1.2rem;padding:2rem;}
+.splash-emblem{width:90px;height:90px;border-radius:50%;
   background:linear-gradient(135deg,var(--gold2),var(--gold));
-  display:flex;align-items:center;justify-content:center;font-size:2rem;
-  box-shadow:0 0 30px rgba(245,200,66,0.4);}
-.logo-text{font-family:'Kanit',sans-serif;font-size:1.8rem;font-weight:900;
-  background:linear-gradient(135deg,var(--gold),#fff);
+  display:flex;align-items:center;justify-content:center;font-size:2.8rem;
+  box-shadow:0 0 0 14px rgba(240,192,64,0.08),0 0 60px rgba(240,192,64,0.35);
+  animation:glow 2.5s ease-in-out infinite;}
+@keyframes glow{0%,100%{box-shadow:0 0 0 14px rgba(240,192,64,0.08),0 0 60px rgba(240,192,64,0.35);}
+  50%{box-shadow:0 0 0 22px rgba(240,192,64,0.05),0 0 100px rgba(240,192,64,0.55);}}
+.splash-title{font-family:'Kanit',sans-serif;font-size:clamp(2rem,6vw,3.2rem);font-weight:900;text-align:center;
+  background:linear-gradient(135deg,var(--gold),#fff 55%,var(--gold));
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;}
-.splash-divider{width:60px;height:3px;background:linear-gradient(90deg,var(--blue),var(--red));border-radius:2px;margin:0 auto;}
-.splash-sub{color:var(--gray2);font-size:0.85rem;text-align:center;margin-top:0.3rem;}
-.splash-menu{display:flex;flex-direction:column;gap:0.75rem;width:100%;max-width:340px;margin-top:0.8rem;}
-.menu-btn{
-  padding:0.95rem 1.2rem;border:1px solid var(--border);border-radius:14px;
+.splash-sub{color:var(--gray);font-size:0.95rem;text-align:center;}
+.splash-btns{display:flex;flex-direction:column;gap:0.85rem;width:100%;max-width:360px;margin-top:0.3rem;}
+.splash-btn{padding:1rem 1.3rem;border:1.5px solid var(--border);border-radius:16px;
   background:rgba(255,255,255,0.04);color:var(--text);cursor:pointer;
-  font-family:'Kanit',sans-serif;font-size:0.95rem;font-weight:600;
-  display:flex;align-items:center;gap:0.8rem;transition:all .2s;backdrop-filter:blur(6px);}
-.menu-btn:hover,.menu-btn:active{background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.2);transform:translateY(-1px);}
-.menu-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;}
-.mi-gold{background:linear-gradient(135deg,var(--gold2),var(--gold));color:#111;}
-.mi-blue{background:linear-gradient(135deg,#1e3a8a,var(--blue2));}
-.mi-green{background:linear-gradient(135deg,#064e3b,var(--green2));}
-.mi-purple{background:linear-gradient(135deg,#4c1d95,#7c3aed);}
-.menu-btn small{display:block;color:var(--gray);font-size:0.7rem;font-weight:400;font-family:'Sarabun',sans-serif;}
-.conn-status{font-size:0.8rem;color:var(--gray);text-align:center;padding:0.4rem 0.8rem;
-  border-radius:20px;border:1px solid var(--border);background:rgba(255,255,255,0.03);}
+  font-family:'Kanit',sans-serif;font-size:1rem;font-weight:600;
+  display:flex;align-items:center;gap:0.9rem;transition:all .2s;backdrop-filter:blur(8px);}
+.splash-btn:hover,.splash-btn:active{background:var(--gold-glow);border-color:var(--gold);transform:translateY(-2px);}
+.sb-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;}
+.sb-icon.blue{background:linear-gradient(135deg,#1a4a8a,#3b82f6);}
+.sb-icon.green{background:linear-gradient(135deg,#065f46,#10b981);}
+.sb-icon.gold{background:linear-gradient(135deg,var(--gold2),var(--gold));color:#111;}
+.sb-icon.purple{background:linear-gradient(135deg,#4c1d95,#7c3aed);}
+.splash-btn small{display:block;color:var(--gray);font-size:0.72rem;font-weight:400;font-family:'Sarabun',sans-serif;}
+.conn-msg{font-size:0.85rem;color:var(--gray);text-align:center;}
 
-/* ===================== SETUP CANDS ===================== */
+/* ===== SETUP CANDIDATES ===== */
 #setup-cands{overflow-y:auto;align-items:center;padding:1.5rem;}
-.setup-wrap{background:var(--surface);border:1px solid var(--border);border-radius:20px;
-  padding:1.8rem;width:100%;max-width:500px;}
-.setup-wrap h2{font-family:'Kanit',sans-serif;font-size:1.3rem;font-weight:800;color:var(--gold);
-  margin-bottom:1.2rem;text-align:center;}
-.cec-list{display:flex;flex-direction:column;gap:0.9rem;max-height:52vh;overflow-y:auto;margin-bottom:0.8rem;}
-.cec-card{background:var(--surface2);border:1px solid var(--border);border-radius:14px;padding:0.9rem;position:relative;}
-.cec-top{display:flex;align-items:center;gap:0.7rem;margin-bottom:0.7rem;}
-.cec-colorbar{width:6px;height:52px;border-radius:3px;flex-shrink:0;}
-.cec-photo{width:52px;height:52px;border-radius:10px;object-fit:cover;
-  background:rgba(255,255,255,0.07);display:flex;align-items:center;justify-content:center;
-  font-size:1.5rem;overflow:hidden;flex-shrink:0;position:relative;cursor:pointer;border:2px solid var(--border);}
-.cec-photo img{width:100%;height:100%;object-fit:cover;border-radius:8px;}
-.cec-photo-btn{position:absolute;inset:0;background:rgba(0,0,0,0.5);border-radius:8px;
-  display:none;align-items:center;justify-content:center;font-size:1.2rem;}
-.cec-photo:hover .cec-photo-btn{display:flex;}
-.cec-fields{flex:1;display:flex;flex-direction:column;gap:0.45rem;}
-.fi{width:100%;padding:0.5rem 0.75rem;background:rgba(255,255,255,0.06);
-  border:1px solid var(--border);border-radius:8px;color:var(--text);
-  font-family:'Sarabun',sans-serif;font-size:0.88rem;outline:none;}
-.fi:focus{border-color:var(--gold);}
-.fi option{background:#111827;}
-.cec-num{position:absolute;top:0.7rem;right:0.7rem;font-family:'Kanit',sans-serif;
-  font-size:1.1rem;font-weight:900;opacity:0.2;}
-.btn-del-cec{position:absolute;bottom:0.6rem;right:0.6rem;width:24px;height:24px;border-radius:6px;
-  background:rgba(239,68,68,0.15);border:none;color:#ef4444;cursor:pointer;font-size:0.8rem;
+.setup-box{background:var(--surface);border:1px solid var(--border);border-radius:24px;
+  padding:2rem 1.8rem;width:100%;max-width:520px;}
+.setup-box h2{font-family:'Kanit',sans-serif;font-size:1.4rem;font-weight:800;color:var(--gold);margin-bottom:1.3rem;text-align:center;}
+.cand-edit-cards{display:flex;flex-direction:column;gap:1rem;margin-bottom:1rem;max-height:55vh;overflow-y:auto;}
+.cand-edit-card{background:var(--surface2);border:1px solid var(--border2);border-radius:16px;padding:1rem;position:relative;}
+.cand-edit-top{display:flex;align-items:center;gap:0.8rem;margin-bottom:0.8rem;}
+.cand-color-bar{width:8px;height:56px;border-radius:4px;flex-shrink:0;transition:background .2s;}
+.cand-photo-wrap{position:relative;flex-shrink:0;}
+.cand-photo-prev{width:56px;height:56px;border-radius:12px;object-fit:cover;background:rgba(255,255,255,0.07);
+  display:flex;align-items:center;justify-content:center;font-size:1.6rem;border:2px solid var(--border2);overflow:hidden;}
+.cand-photo-prev img{width:100%;height:100%;border-radius:10px;object-fit:cover;}
+.btn-photo-upload{position:absolute;bottom:-4px;right:-4px;width:22px;height:22px;border-radius:6px;
+  background:var(--gold);border:none;color:#111;font-size:0.75rem;cursor:pointer;
   display:flex;align-items:center;justify-content:center;}
-.btn-del-cec:hover{background:rgba(239,68,68,0.3);}
-.color-row{display:flex;gap:0.35rem;flex-wrap:wrap;padding-left:0.9rem;}
-.cdot{width:20px;height:20px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:all .15s;}
-.cdot.active{border-color:#fff;transform:scale(1.25);}
-.btn-add-cec{width:100%;padding:0.6rem;border:1px dashed rgba(255,255,255,0.15);border-radius:9px;
-  background:none;color:var(--gray);font-family:'Sarabun',sans-serif;cursor:pointer;font-size:0.88rem;transition:all .2s;}
-.btn-add-cec:hover{border-color:var(--gold);color:var(--gold);}
-.btn-save-cec{width:100%;margin-top:0.9rem;padding:0.95rem;
-  background:linear-gradient(135deg,var(--gold2),var(--gold));border:none;border-radius:11px;
-  color:#111;font-family:'Kanit',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;}
+.cand-fields{flex:1;display:flex;flex-direction:column;gap:0.5rem;}
+.fi{width:100%;padding:0.55rem 0.8rem;background:rgba(255,255,255,0.06);border:1px solid var(--border2);
+  border-radius:9px;color:var(--text);font-family:'Sarabun',sans-serif;font-size:0.9rem;outline:none;}
+.fi:focus{border-color:var(--gold);}
+.fi option{background:#0d1e35;}
+.cand-num-label{position:absolute;top:0.7rem;right:0.8rem;font-family:'Kanit',sans-serif;
+  font-size:1.2rem;font-weight:900;opacity:0.2;}
+.btn-del-card{position:absolute;bottom:0.7rem;right:0.8rem;width:26px;height:26px;border-radius:7px;
+  background:rgba(239,68,68,0.15);border:none;color:#ef4444;cursor:pointer;font-size:0.85rem;
+  display:flex;align-items:center;justify-content:center;}
+.btn-del-card:hover{background:rgba(239,68,68,0.3);}
+.btn-add-cand{width:100%;padding:0.7rem;border:1px dashed rgba(255,255,255,0.15);border-radius:10px;
+  background:none;color:var(--gray);font-family:'Sarabun',sans-serif;cursor:pointer;font-size:0.9rem;transition:all .2s;}
+.btn-add-cand:hover{border-color:var(--gold);color:var(--gold);}
+.btn-save{width:100%;margin-top:1rem;padding:1rem;
+  background:linear-gradient(135deg,var(--gold2),var(--gold));border:none;border-radius:12px;
+  color:#111;font-family:'Kanit',sans-serif;font-size:1.05rem;font-weight:700;cursor:pointer;}
 .btn-back{background:none;border:none;color:var(--gray);cursor:pointer;font-family:'Sarabun',sans-serif;
-  font-size:0.82rem;display:block;text-align:center;margin-top:0.7rem;padding:0.4rem;}
+  font-size:0.85rem;display:block;text-align:center;margin-top:0.8rem;padding:0.4rem;}
 .btn-back:hover{color:var(--text);}
+.color-palette{display:flex;gap:0.4rem;flex-wrap:wrap;margin-top:0.4rem;}
+.color-dot{width:22px;height:22px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:all .15s;}
+.color-dot.active{border-color:#fff;transform:scale(1.2);}
 
-/* ===================== BOOTH SELECT ===================== */
-#booth-select{align-items:center;justify-content:center;gap:1rem;padding:2rem;}
-#booth-select h2{font-family:'Kanit',sans-serif;font-size:1.4rem;font-weight:800;color:var(--gold);}
+/* ===== BOOTH SELECT ===== */
+#booth-select{align-items:center;justify-content:center;padding:2rem;gap:1rem;}
+#booth-select h2{font-family:'Kanit',sans-serif;font-size:1.5rem;font-weight:800;color:var(--gold);}
+.booth-sel-btns{display:flex;flex-direction:column;gap:0.9rem;width:100%;max-width:340px;}
 
-/* ===================== BOOTH VOTING ===================== */
+/* ===== BOOTH VOTING ===== */
 #booth-vote{flex-direction:column;}
-.booth-header{
-  padding:0.75rem 1rem;background:rgba(10,14,26,0.97);
-  border-bottom:1px solid var(--border);
-  display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
-.bh-left h3{font-family:'Kanit',sans-serif;font-size:1rem;font-weight:700;color:var(--gold);}
-.bh-left p{font-size:0.7rem;color:var(--gray);}
-.live-pill{background:rgba(220,38,38,0.15);border:1px solid rgba(220,38,38,0.35);
-  border-radius:20px;padding:0.25rem 0.7rem;display:flex;align-items:center;gap:0.35rem;
-  font-size:0.7rem;color:#ef4444;font-weight:700;}
-.live-dot{width:6px;height:6px;border-radius:50%;background:#ef4444;animation:blink 1.2s infinite;}
-@keyframes blink{0%,100%{opacity:1;}50%{opacity:0.25;}}
-.closed-bar{background:#7f1d1d;color:#fca5a5;text-align:center;font-family:'Kanit',sans-serif;
-  font-size:0.9rem;font-weight:700;padding:0.5rem;display:none;flex-shrink:0;}
-.closed-bar.show{display:block;}
-.booth-scroll{flex:1;overflow-y:auto;padding:0.8rem;}
-.booth-hint{text-align:center;font-family:'Kanit',sans-serif;font-size:1rem;font-weight:700;
-  color:var(--gold);margin-bottom:0.9rem;padding:0.6rem;
-  background:rgba(245,200,66,0.06);border:1px solid rgba(245,200,66,0.15);border-radius:10px;}
-
-/* BIG CANDIDATE CARDS */
-.cands-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem;}
-.cand-card{
-  border-radius:20px;cursor:pointer;overflow:hidden;
-  border:3px solid transparent;transition:all .18s ease;
-  box-shadow:0 4px 16px rgba(0,0,0,0.3);
-  user-select:none;position:relative;}
-.cand-card:active{transform:scale(0.97);}
-.cand-card.selected{
-  border-width:4px;
-  transform:translateY(-3px) scale(1.01);
-  box-shadow:0 0 0 3px rgba(255,255,255,0.25),0 12px 40px rgba(0,0,0,0.5);}
-.cc-band{height:14px;width:100%;}
-.cc-body{background:rgba(12,20,40,0.9);padding:1.1rem 1rem 1.3rem;
-  display:flex;flex-direction:column;align-items:center;gap:0.65rem;}
-.cc-num{font-family:'Kanit',sans-serif;font-weight:900;font-size:clamp(3rem,9vw,5rem);line-height:1;}
-.cc-photo{width:clamp(88px,18vw,120px);height:clamp(88px,18vw,120px);border-radius:50%;
-  object-fit:cover;overflow:hidden;border:3px solid rgba(255,255,255,0.12);
-  background:rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:center;font-size:2.5rem;}
-.cc-photo img{width:100%;height:100%;object-fit:cover;}
-.cc-name{font-family:'Kanit',sans-serif;font-size:clamp(1.1rem,3.5vw,1.5rem);font-weight:800;
-  text-align:center;line-height:1.2;}
-.cc-party{font-size:0.8rem;opacity:0.65;text-align:center;}
-.cc-check{position:absolute;top:0.65rem;right:0.65rem;width:34px;height:34px;border-radius:50%;
-  background:#fff;color:#111;display:none;align-items:center;justify-content:center;
-  font-size:1.2rem;font-weight:900;box-shadow:0 2px 8px rgba(0,0,0,0.3);}
-.cand-card.selected .cc-check{display:flex;}
-.booth-footer{padding:0.75rem 1rem 1rem;border-top:1px solid var(--border);
-  background:rgba(10,14,26,0.97);flex-shrink:0;}
-.btn-confirm{width:100%;padding:1rem;border:none;border-radius:14px;
-  background:linear-gradient(135deg,#065f46,var(--green2));color:#fff;
-  font-family:'Kanit',sans-serif;font-size:1.1rem;font-weight:800;
-  cursor:pointer;transition:all .2s;opacity:0.3;pointer-events:none;}
-.btn-confirm.ready{opacity:1;pointer-events:all;}
-.btn-confirm.ready:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(5,150,105,0.4);}
-
-/* ===================== VOTED ===================== */
-#voted-screen{align-items:center;justify-content:center;padding:2rem;text-align:center;gap:0.9rem;}
-.voted-big-icon{font-size:clamp(5rem,15vw,8rem);animation:popIn .4s cubic-bezier(.34,1.56,.64,1);}
-@keyframes popIn{0%{transform:scale(0);}100%{transform:scale(1);}}
-.voted-title{font-family:'Kanit',sans-serif;font-size:clamp(1.8rem,5vw,2.8rem);font-weight:900;color:var(--green2);}
-.voted-for{font-family:'Kanit',sans-serif;font-size:clamp(1.1rem,3.5vw,1.6rem);font-weight:700;
-  background:rgba(245,200,66,0.08);border:2px solid rgba(245,200,66,0.25);border-radius:14px;padding:0.9rem 1.8rem;}
-.btn-next{padding:0.9rem 2.2rem;border:1.5px solid var(--border);border-radius:12px;
-  background:rgba(255,255,255,0.05);color:var(--text);
-  font-family:'Kanit',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;transition:all .2s;margin-top:0.3rem;}
-.btn-next:hover{background:rgba(255,255,255,0.1);}
-
-/* ===================== NEWS DISPLAY MODE ===================== */
-#display-mode{flex-direction:column;overflow:hidden;
-  background:linear-gradient(180deg,#06091a 0%,#0a0e1a 100%);}
-
-/* TOP BAR — สไตล์สถานีข่าว */
-.news-topbar{
-  background:linear-gradient(90deg,#0f1729 0%,#162038 50%,#0f1729 100%);
-  border-bottom:3px solid var(--gold);
-  padding:0 1.5rem;height:64px;
+.booth-top{
+  padding:0.9rem 1.2rem 0.8rem;
+  background:rgba(6,13,26,0.95);
+  border-bottom:2px solid var(--border);
   display:flex;align-items:center;justify-content:space-between;flex-shrink:0;
-  position:relative;overflow:hidden;}
-.news-topbar::before{content:'';position:absolute;inset:0;
-  background:repeating-linear-gradient(90deg,rgba(255,255,255,0.01) 0px,rgba(255,255,255,0.01) 1px,transparent 1px,transparent 40px);
-  pointer-events:none;}
-.ntb-left{display:flex;align-items:center;gap:0.8rem;}
-.ntb-logo{
-  background:linear-gradient(135deg,var(--gold2),var(--gold));
-  color:#111;font-family:'Kanit',sans-serif;font-size:0.7rem;font-weight:900;
-  padding:0.2rem 0.6rem;border-radius:4px;letter-spacing:0.08em;}
-.ntb-title{font-family:'Kanit',sans-serif;font-size:clamp(0.9rem,2.5vw,1.3rem);font-weight:800;color:#fff;}
-.ntb-right{display:flex;align-items:center;gap:0.8rem;}
-.ntb-total{
-  font-family:'Kanit',sans-serif;font-size:0.85rem;font-weight:700;
-  background:rgba(245,200,66,0.1);border:1px solid rgba(245,200,66,0.3);
-  border-radius:6px;padding:0.3rem 0.8rem;color:var(--gold);}
-.ntb-live{background:var(--red);color:#fff;font-family:'Kanit',sans-serif;
-  font-size:0.7rem;font-weight:800;padding:0.2rem 0.7rem;border-radius:4px;letter-spacing:0.1em;
-  animation:live-pulse 2s ease-in-out infinite;}
-@keyframes live-pulse{0%,100%{opacity:1;}50%{opacity:0.7;}}
-.ntb-time{font-size:0.78rem;color:var(--gray2);font-family:'Kanit',sans-serif;display:none;}
+}
+.booth-top-left h3{font-family:'Kanit',sans-serif;font-size:1rem;font-weight:700;color:var(--gold);}
+.booth-top-left p{font-size:0.72rem;color:var(--gray);}
+.live-badge{background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.35);
+  border-radius:20px;padding:0.3rem 0.8rem;display:flex;align-items:center;gap:0.4rem;
+  font-size:0.75rem;color:#ef4444;font-weight:600;}
+.live-dot{width:7px;height:7px;border-radius:50%;background:#ef4444;animation:blink 1.2s ease-in-out infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0.3;}}
+.booth-closed-banner{
+  background:rgba(239,68,68,0.12);border-bottom:2px solid rgba(239,68,68,0.4);
+  padding:0.7rem;text-align:center;font-family:'Kanit',sans-serif;font-size:1rem;font-weight:700;
+  color:#ef4444;display:none;flex-shrink:0;}
+.booth-closed-banner.show{display:block;}
 
-/* WINNER STRIP */
-.winner-strip{
-  background:linear-gradient(90deg,rgba(245,200,66,0.18),rgba(245,200,66,0.08),rgba(245,200,66,0.18));
-  border-bottom:1px solid rgba(245,200,66,0.3);
-  padding:0.6rem 1.5rem;
-  display:flex;align-items:center;gap:1rem;flex-shrink:0;
-  opacity:0;max-height:0;overflow:hidden;transition:all .5s ease;}
-.winner-strip.show{opacity:1;max-height:80px;padding:0.6rem 1.5rem;}
-.ws-label{font-family:'Kanit',sans-serif;font-size:0.7rem;font-weight:700;
-  background:var(--gold);color:#111;padding:0.15rem 0.5rem;border-radius:3px;flex-shrink:0;}
-.ws-trophy{font-size:1.4rem;flex-shrink:0;}
-.ws-name{font-family:'Kanit',sans-serif;font-size:clamp(1rem,2.5vw,1.4rem);font-weight:900;color:var(--gold);}
-.ws-votes{font-size:0.8rem;color:var(--gray2);margin-left:auto;flex-shrink:0;}
-
-/* RESULTS GRID */
-.results-body{flex:1;overflow-y:auto;padding:1rem 1.2rem;}
-.results-grid{display:flex;flex-direction:column;gap:0.7rem;}
-
-/* RESULT ROW — NEWS STYLE */
-.news-result-row{
-  background:linear-gradient(90deg,var(--surface) 0%,var(--surface2) 100%);
-  border:1px solid var(--border);border-radius:12px;
-  padding:0.8rem 1rem;
+.booth-scroll{flex:1;overflow-y:auto;padding:1rem 0.8rem 0.5rem;}
+.booth-instruction{
+  text-align:center;font-family:'Kanit',sans-serif;font-size:1.2rem;font-weight:700;
+  color:var(--gold);margin-bottom:1rem;
+  background:rgba(240,192,64,0.07);border:1px solid var(--border);
+  border-radius:12px;padding:0.8rem;
+}
+.cands-big-grid{
   display:grid;
-  grid-template-columns: 38px 44px auto 1fr 70px;
-  align-items:center;gap:0.75rem;
-  transition:all .35s ease;
-  position:relative;overflow:hidden;}
-.news-result-row::before{content:'';position:absolute;left:0;top:0;bottom:0;
-  width:4px;border-radius:0 2px 2px 0;}
-.news-result-row.rank-1{background:linear-gradient(90deg,rgba(245,200,66,0.08),var(--surface2));
-  border-color:rgba(245,200,66,0.3);}
-.news-result-row.rank-1::before{background:var(--gold);}
-.rank-num{
-  font-family:'Kanit',sans-serif;font-size:1.5rem;font-weight:900;
-  text-align:center;color:var(--gray);}
-.rank-num.r1{color:var(--gold);}
-.rank-num.r2{color:var(--gray2);}
-.nrr-thumb{width:40px;height:40px;border-radius:50%;overflow:hidden;
+  grid-template-columns:repeat(auto-fill,minmax(300px,1fr));
+  gap:1.2rem;
+}
+
+/* BIG CARD — กดปุ๊บโหวตเลย */
+.big-cand-card{
+  border-radius:24px;cursor:pointer;
+  transition:all .15s ease;
+  overflow:hidden;position:relative;
+  border:4px solid transparent;
+  user-select:none;
+  box-shadow:0 4px 20px rgba(0,0,0,0.3);
+}
+.big-cand-card:active{transform:scale(0.95);}
+.card-band{height:20px;width:100%;}
+.card-body{
+  padding:1.2rem 1.2rem 1.5rem;
+  background:rgba(10,20,40,0.85);
+  display:flex;flex-direction:column;align-items:center;gap:0.8rem;
+}
+.card-number{
+  font-family:'Kanit',sans-serif;font-weight:900;
+  font-size:clamp(4rem,12vw,6rem);
+  line-height:1;
+  text-shadow:0 4px 20px rgba(0,0,0,0.5);
+}
+.card-photo{
+  width:clamp(100px,18vw,130px);height:clamp(100px,18vw,130px);
+  border-radius:50%;object-fit:cover;
+  border:4px solid rgba(255,255,255,0.15);
+  background:rgba(255,255,255,0.07);
+  display:flex;align-items:center;justify-content:center;
+  font-size:3rem;overflow:hidden;flex-shrink:0;
+}
+.card-photo img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
+.card-name{font-family:'Kanit',sans-serif;font-size:clamp(1.3rem,4vw,1.8rem);font-weight:800;
+  text-align:center;line-height:1.2;text-shadow:0 2px 8px rgba(0,0,0,0.5);}
+.card-party{font-size:clamp(0.85rem,2.5vw,1rem);opacity:0.65;text-align:center;font-weight:600;}
+
+/* ===== SUCCESS POPUP (กลางจอ, ปิดอัตโนมัติ) ===== */
+.success-popup-ov{
+  position:fixed;inset:0;z-index:200;
+  background:rgba(0,0,0,0.75);backdrop-filter:blur(8px);
+  display:flex;align-items:center;justify-content:center;padding:1.5rem;
+  opacity:0;pointer-events:none;transition:opacity .2s;
+}
+.success-popup-ov.show{opacity:1;pointer-events:all;}
+.success-popup{
+  background:#0a1e38;
+  border-radius:28px;
+  padding:2.5rem 2rem;
+  text-align:center;
+  width:100%;max-width:360px;
+  transform:scale(0.85);
+  transition:transform .25s cubic-bezier(.34,1.56,.64,1);
+  position:relative;overflow:hidden;
+}
+.success-popup-ov.show .success-popup{transform:scale(1);}
+/* top color band */
+.success-band{height:14px;width:100%;position:absolute;top:0;left:0;border-radius:28px 28px 0 0;}
+.success-icon{font-size:4.5rem;margin-bottom:0.6rem;display:block;animation:pop .35s cubic-bezier(.34,1.56,.64,1);}
+@keyframes pop{0%{transform:scale(0);}100%{transform:scale(1);}}
+.success-title{font-family:'Kanit',sans-serif;font-size:1.8rem;font-weight:900;color:var(--green);margin-bottom:0.3rem;}
+.success-sub{color:var(--gray);font-size:0.9rem;margin-bottom:1rem;}
+.success-cand{
+  font-family:'Kanit',sans-serif;font-size:1.3rem;font-weight:800;
+  padding:0.8rem 1.2rem;border-radius:14px;
+  background:rgba(255,255,255,0.06);
+  border:2px solid rgba(255,255,255,0.1);
+  display:block;margin-bottom:1rem;
+}
+/* countdown ring */
+.countdown-wrap{display:flex;align-items:center;justify-content:center;gap:0.5rem;margin-top:0.5rem;}
+.countdown-ring{width:36px;height:36px;position:relative;}
+.countdown-ring svg{transform:rotate(-90deg);}
+.countdown-ring circle{fill:none;stroke:rgba(255,255,255,0.1);stroke-width:3;}
+.countdown-ring .progress{stroke:var(--green);stroke-width:3;stroke-linecap:round;
+  stroke-dasharray:100;stroke-dashoffset:100;transition:stroke-dashoffset 1s linear;}
+.countdown-num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-family:'Kanit',sans-serif;font-size:0.9rem;font-weight:800;color:var(--green);}
+.countdown-txt{font-size:0.8rem;color:var(--gray);}
+
+/* ===== DISPLAY TV ===== */
+#display-mode{flex-direction:column;
+  background:radial-gradient(ellipse at top,rgba(26,74,138,0.5) 0%,var(--bg) 60%);}
+.disp-header{padding:1rem 1.5rem 0.9rem;border-bottom:2px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.disp-header h1{font-family:'Kanit',sans-serif;font-size:clamp(1.2rem,3vw,2rem);font-weight:900;
+  background:linear-gradient(135deg,var(--gold),#fff 50%,var(--gold));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.total-pill{background:rgba(240,192,64,0.1);border:1px solid var(--border);border-radius:20px;
+  padding:0.4rem 1rem;font-family:'Kanit',sans-serif;font-size:0.9rem;font-weight:700;color:var(--gold);}
+.disp-body{flex:1;overflow-y:auto;padding:1.2rem 1.5rem;}
+.winner-section{display:flex;align-items:center;gap:1.2rem;
+  background:linear-gradient(135deg,rgba(240,192,64,0.12),rgba(240,192,64,0.04));
+  border:2px solid var(--gold);border-radius:20px;padding:1.2rem 1.5rem;margin-bottom:1.5rem;
+  opacity:0;max-height:0;overflow:hidden;transition:all .5s ease;}
+.winner-section.show{opacity:1;max-height:200px;}
+.winner-trophy{font-size:clamp(2.5rem,5vw,3.5rem);}
+.winner-name-disp{font-family:'Kanit',sans-serif;font-size:clamp(1.2rem,3vw,1.8rem);font-weight:900;color:var(--gold);}
+.winner-votes-disp{font-size:0.85rem;color:var(--gray);}
+.result-rows{display:flex;flex-direction:column;gap:0.8rem;}
+.result-row{background:var(--surface);border:1px solid var(--border2);border-radius:16px;
+  padding:0.9rem 1.1rem;display:grid;grid-template-columns:44px auto 1fr 70px;
+  align-items:center;gap:0.9rem;transition:all .3s;}
+.result-row.rank-1{border-color:rgba(240,192,64,0.4);background:rgba(240,192,64,0.06);}
+.rr-rank{width:36px;height:36px;border-radius:9px;background:rgba(255,255,255,0.07);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Kanit',sans-serif;font-size:0.85rem;font-weight:800;}
+.rr-rank.r1{background:linear-gradient(135deg,var(--gold2),var(--gold));color:#111;}
+.rr-rank.r2{background:linear-gradient(135deg,#4b5563,#9ca3af);color:#111;}
+.rr-rank.r3{background:linear-gradient(135deg,#78350f,#d97706);color:#fff;}
+.rr-thumb{width:40px;height:40px;border-radius:50%;object-fit:cover;
   background:rgba(255,255,255,0.07);display:flex;align-items:center;justify-content:center;
-  font-size:1.2rem;flex-shrink:0;border:2px solid rgba(255,255,255,0.1);}
-.nrr-thumb img{width:100%;height:100%;object-fit:cover;}
-.nrr-info{}
-.nrr-name{font-family:'Kanit',sans-serif;font-size:clamp(0.9rem,2.5vw,1.1rem);font-weight:800;}
-.nrr-party{font-size:0.7rem;color:var(--gray2);}
-.nrr-bar-area{}
-.nrr-bar-bg{width:100%;height:10px;background:rgba(255,255,255,0.07);border-radius:99px;overflow:hidden;margin-bottom:0.2rem;}
-.nrr-bar{height:100%;border-radius:99px;transition:width .9s cubic-bezier(.22,1,.36,1);}
-.nrr-meta{display:flex;justify-content:space-between;font-size:0.7rem;color:var(--gray2);}
-.nrr-votes-big{
-  font-family:'Kanit',sans-serif;font-size:clamp(1.3rem,3vw,1.8rem);font-weight:900;
-  text-align:right;line-height:1;}
-.nrr-votes-label{font-size:0.65rem;color:var(--gray);text-align:right;font-family:'Kanit',sans-serif;}
-.vote-bump{animation:vbump .4s ease;}
-@keyframes vbump{0%{transform:scale(1.5);color:#fff;}100%{transform:scale(1);}}
+  font-size:1.3rem;overflow:hidden;flex-shrink:0;}
+.rr-thumb img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
+.rr-info .rr-name{font-family:'Kanit',sans-serif;font-size:0.95rem;font-weight:700;}
+.rr-info .rr-party{font-size:0.72rem;color:var(--gray);}
+.rr-bar-wrap{display:flex;align-items:center;gap:0.5rem;margin-top:0.3rem;}
+.rr-bar-bg{flex:1;height:8px;background:rgba(255,255,255,0.07);border-radius:99px;overflow:hidden;}
+.rr-bar{height:100%;border-radius:99px;transition:width .8s cubic-bezier(.22,1,.36,1);}
+.rr-pct{font-size:0.7rem;color:var(--gray);width:28px;text-align:right;}
+.rr-votes{font-family:'Kanit',sans-serif;font-size:1.5rem;font-weight:900;text-align:right;transition:all .3s;}
+.vote-bump{animation:bump .35s ease;}
+@keyframes bump{0%{transform:scale(1.5);color:#fff;}100%{transform:scale(1);}}
 
-/* TICKER BOTTOM */
-.news-ticker{
-  background:#0d1829;border-top:2px solid var(--gold);
-  padding:0 0;height:36px;display:flex;align-items:center;overflow:hidden;flex-shrink:0;}
-.ticker-label{background:var(--red);color:#fff;font-family:'Kanit',sans-serif;
-  font-size:0.72rem;font-weight:800;padding:0 1rem;height:100%;
-  display:flex;align-items:center;white-space:nowrap;flex-shrink:0;}
-.ticker-track{flex:1;overflow:hidden;position:relative;height:100%;}
-.ticker-text{
-  position:absolute;top:50%;transform:translateY(-50%);
-  white-space:nowrap;font-family:'Kanit',sans-serif;font-size:0.82rem;font-weight:600;color:var(--text2);
-  animation:ticker 20s linear infinite;}
-@keyframes ticker{0%{left:100%;}100%{left:-100%;}  }
-
-.disp-footer{padding:0.5rem 1.2rem;border-top:1px solid var(--border);
-  display:flex;justify-content:space-between;align-items:center;flex-shrink:0;background:var(--bg);}
-
-/* ===================== ADMIN ===================== */
+/* ===== ADMIN ===== */
 #admin-panel{flex-direction:column;}
-.admin-header{padding:0.9rem 1.2rem;border-bottom:1px solid var(--border);
-  display:flex;align-items:center;gap:0.7rem;flex-shrink:0;}
-.admin-header h2{font-family:'Kanit',sans-serif;font-size:1.2rem;font-weight:800;color:var(--gold);flex:1;}
-.admin-body{flex:1;overflow-y:auto;padding:1.2rem;}
-.stats3{display:grid;grid-template-columns:repeat(3,1fr);gap:0.7rem;margin-bottom:1.2rem;}
-.sbox{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:0.9rem;text-align:center;}
-.sbox .sv{font-family:'Kanit',sans-serif;font-size:1.5rem;font-weight:900;color:var(--gold);}
-.sbox .sl{font-size:0.68rem;color:var(--gray);margin-top:0.1rem;}
-.slabel{font-family:'Kanit',sans-serif;font-size:0.7rem;font-weight:700;
-  color:var(--gray);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.7rem;}
-.vote-toggle-row{display:flex;align-items:center;justify-content:space-between;
-  background:var(--surface);border:1px solid var(--border);border-radius:12px;
-  padding:0.9rem 1.1rem;margin-bottom:1rem;}
-.vote-toggle-row span{font-family:'Kanit',sans-serif;font-weight:600;font-size:0.95rem;}
-.tsw{width:50px;height:26px;border-radius:99px;background:rgba(239,68,68,0.3);
+.admin-top{padding:1rem 1.5rem 0.9rem;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:0.8rem;flex-shrink:0;}
+.admin-top h2{font-family:'Kanit',sans-serif;font-size:1.3rem;font-weight:800;color:var(--gold);flex:1;}
+.admin-body{flex:1;overflow-y:auto;padding:1.5rem;}
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:0.8rem;margin-bottom:1.5rem;}
+.stat-box{background:var(--surface);border:1px solid var(--border2);border-radius:14px;padding:1rem;text-align:center;}
+.stat-box .sv{font-family:'Kanit',sans-serif;font-size:1.6rem;font-weight:900;color:var(--gold);}
+.stat-box .sl{font-size:0.72rem;color:var(--gray);margin-top:0.15rem;}
+.sec-label{font-family:'Kanit',sans-serif;font-size:0.75rem;font-weight:700;
+  color:var(--gray);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.8rem;}
+.voting-toggle{display:flex;align-items:center;justify-content:space-between;
+  background:var(--surface);border:1px solid var(--border2);border-radius:14px;
+  padding:1rem 1.2rem;margin-bottom:1rem;}
+.voting-toggle span{font-family:'Kanit',sans-serif;font-weight:600;}
+.toggle-sw{width:52px;height:28px;border-radius:99px;background:rgba(239,68,68,0.3);
   border:none;cursor:pointer;position:relative;transition:all .25s;}
-.tsw.on{background:var(--green);}
-.tsw::after{content:'';position:absolute;top:3px;left:3px;width:20px;height:20px;
-  border-radius:50%;background:#fff;transition:transform .25s;}
-.tsw.on::after{transform:translateX(24px);}
-.adm-table{width:100%;border-collapse:collapse;margin-bottom:1.2rem;}
-.adm-table th{font-family:'Kanit',sans-serif;font-size:0.68rem;text-transform:uppercase;
-  letter-spacing:0.08em;color:var(--gray);padding:0.5rem 0.7rem;
-  border-bottom:1px solid var(--border);text-align:left;}
-.adm-table td{padding:0.65rem 0.7rem;border-bottom:1px solid rgba(255,255,255,0.04);font-size:0.88rem;}
-.adm-btns{display:flex;flex-wrap:wrap;gap:0.6rem;}
-.abtn{padding:0.7rem 1.1rem;border:none;border-radius:10px;
-  font-family:'Kanit',sans-serif;font-size:0.82rem;font-weight:700;cursor:pointer;transition:all .2s;
-  display:flex;align-items:center;gap:0.35rem;}
-.abtn.red{background:rgba(239,68,68,0.12);color:#ef4444;border:1px solid rgba(239,68,68,0.25);}
-.abtn.red:hover{background:rgba(239,68,68,0.25);}
-.abtn.blue{background:rgba(59,130,246,0.12);color:#60a5fa;border:1px solid rgba(59,130,246,0.25);}
-.abtn.blue:hover{background:rgba(59,130,246,0.25);}
+.toggle-sw.on{background:var(--green);}
+.toggle-sw::after{content:'';position:absolute;top:3px;left:3px;
+  width:22px;height:22px;border-radius:50%;background:#fff;transition:transform .25s;}
+.toggle-sw.on::after{transform:translateX(24px);}
+.admin-table{width:100%;border-collapse:collapse;margin-bottom:1.5rem;}
+.admin-table th{font-family:'Kanit',sans-serif;font-size:0.72rem;text-transform:uppercase;
+  letter-spacing:0.08em;color:var(--gray);padding:0.6rem 0.8rem;
+  border-bottom:1px solid var(--border2);text-align:left;}
+.admin-table td{padding:0.7rem 0.8rem;border-bottom:1px solid rgba(255,255,255,0.04);font-size:0.9rem;}
+.adm-actions{display:flex;flex-wrap:wrap;gap:0.7rem;}
+.btn-adm{padding:0.75rem 1.2rem;border:none;border-radius:11px;
+  font-family:'Kanit',sans-serif;font-size:0.85rem;font-weight:700;cursor:pointer;transition:all .2s;
+  display:flex;align-items:center;gap:0.4rem;}
+.btn-adm.red{background:rgba(239,68,68,0.15);color:#ef4444;border:1px solid rgba(239,68,68,0.3);}
+.btn-adm.red:hover{background:rgba(239,68,68,0.3);}
+.btn-adm.blue{background:rgba(59,130,246,0.15);color:#3b82f6;border:1px solid rgba(59,130,246,0.3);}
+.btn-adm.blue:hover{background:rgba(59,130,246,0.3);}
 
 /* CONN BAR */
-.conn-bar{position:fixed;top:0;left:0;right:0;z-index:200;
-  padding:0.3rem;text-align:center;font-size:0.75rem;font-weight:600;font-family:'Kanit',sans-serif;
+.conn-bar{position:fixed;top:0;left:0;right:0;z-index:300;
+  padding:0.35rem;text-align:center;font-size:0.78rem;font-weight:600;font-family:'Kanit',sans-serif;
   transform:translateY(-100%);transition:transform .3s;}
 .conn-bar.show{transform:translateY(0);}
-.conn-bar.off{background:#7f1d1d;color:#fca5a5;}
-.conn-bar.on{background:#064e3b;color:#6ee7b7;}
+.conn-bar.offline{background:#7f1d1d;color:#fca5a5;}
+.conn-bar.online{background:#064e3b;color:#6ee7b7;}
 
 /* TOAST */
-.toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%) translateY(70px);
-  background:var(--surface2);border:1px solid var(--border);border-radius:10px;
-  padding:0.6rem 1.2rem;font-size:0.85rem;z-index:999;transition:transform .3s;white-space:nowrap;}
+.toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%) translateY(80px);
+  background:var(--surface2);border:1px solid var(--border);border-radius:12px;
+  padding:0.7rem 1.3rem;font-size:0.88rem;z-index:999;transition:transform .3s;white-space:nowrap;}
 .toast.show{transform:translateX(-50%) translateY(0);}
 
-@media(max-width:480px){
-  .cands-grid{grid-template-columns:1fr 1fr;}
-  .cc-photo{width:70px;height:70px;}
-  .cc-name{font-size:1rem;}
-  .stats3{grid-template-columns:1fr 1fr;}
-  .news-result-row{grid-template-columns:28px 36px auto 1fr 55px;gap:0.5rem;}
-  .nrr-votes-big{font-size:1.2rem;}
-  .rank-num{font-size:1.1rem;}
+/* DISABLED OVERLAY on cards when voting closed */
+.booth-disabled .big-cand-card{opacity:0.4;pointer-events:none;}
+
+@media(max-width:500px){
+  .cands-big-grid{grid-template-columns:1fr 1fr;}
+  .card-photo{width:70px;height:70px;}
+  .card-name{font-size:1.1rem;}
+  .stats-row{grid-template-columns:1fr 1fr;}
+  .result-row{grid-template-columns:36px auto 1fr 56px;}
 }
 </style>
 </head>
 <body>
+
 <div class="conn-bar" id="conn-bar"></div>
 
 <!-- ===== SPLASH ===== -->
 <div id="splash" class="screen active">
-  <div class="splash-logo">
-    <div class="logo-emblem">🗳️</div>
-    <div class="logo-text">VOTE LIVE</div>
-  </div>
-  <div class="splash-divider"></div>
-  <div class="splash-sub">ระบบเลือกตั้ง Real-time</div>
-  <div class="conn-status" id="conn-msg">⏳ กำลังเชื่อมต่อ...</div>
-  <div class="splash-menu" id="splash-menu" style="opacity:0;pointer-events:none;transition:opacity .35s">
-    <button class="menu-btn" onclick="gotoSetup()">
-      <div class="menu-icon mi-gold">⚙️</div>
-      <div><span>ตั้งค่าผู้สมัคร</span><small>กำหนดชื่อ รูป สีประจำตัว</small></div>
+  <div class="splash-emblem">🗳️</div>
+  <div class="splash-title">ระบบเลือกตั้ง</div>
+  <div class="splash-sub conn-msg" id="conn-msg">กำลังเชื่อมต่อ Firebase...</div>
+  <div class="splash-btns" id="splash-btns" style="opacity:0;pointer-events:none;transition:opacity .4s">
+    <button class="splash-btn" onclick="goto('setup-cands')">
+      <div class="sb-icon gold">⚙️</div>
+      <div><span>ตั้งค่าผู้สมัคร</span><small>กำหนดชื่อ รูป สีของผู้สมัคร</small></div>
     </button>
-    <button class="menu-btn" onclick="goto('booth-select')">
-      <div class="menu-icon mi-blue">📲</div>
-      <div><span>คูหาลงคะแนน</span><small>เปิดบน iPad ที่ใช้โหวต</small></div>
+    <button class="splash-btn" onclick="goto('booth-select')">
+      <div class="sb-icon blue">📲</div>
+      <div><span>คูหาลงคะแนน</span><small>เปิดบน iPad สำหรับให้เด็กโหวต</small></div>
     </button>
-    <button class="menu-btn" onclick="goto('display-mode')">
-      <div class="menu-icon mi-green">📺</div>
-      <div><span>จอแสดงผล สไตล์ข่าว</span><small>แสดงผลแบบ real-time บนจอใหญ่</small></div>
+    <button class="splash-btn" onclick="goto('display-mode')">
+      <div class="sb-icon green">📺</div>
+      <div><span>จอแสดงผล (TV Mode)</span><small>แสดงคะแนน real-time</small></div>
     </button>
-    <button class="menu-btn" onclick="goto('admin-panel')">
-      <div class="menu-icon mi-purple">🛡️</div>
-      <div><span>Admin Panel</span><small>เปิด-ปิดโหวต / รีเซ็ต</small></div>
+    <button class="splash-btn" onclick="goto('admin-panel')">
+      <div class="sb-icon purple">🛡️</div>
+      <div><span>Admin Panel</span><small>รีเซ็ต / เปิด-ปิดการโหวต</small></div>
     </button>
   </div>
 </div>
 
-<!-- ===== SETUP ===== -->
+<!-- ===== SETUP CANDIDATES ===== -->
 <div id="setup-cands" class="screen">
   <div style="overflow-y:auto;flex:1;display:flex;align-items:flex-start;justify-content:center;padding:1.5rem;">
-  <div class="setup-wrap">
+  <div class="setup-box">
     <h2>⚙️ ตั้งค่าผู้สมัคร</h2>
-    <div class="cec-list" id="cec-list"></div>
-    <button class="btn-add-cec" onclick="addCand()">+ เพิ่มผู้สมัคร</button>
-    <button class="btn-save-cec" onclick="saveCands()">💾 บันทึกและซิงค์ Firebase</button>
+    <div class="cand-edit-cards" id="cand-edit-cards"></div>
+    <button class="btn-add-cand" onclick="addCandCard()">+ เพิ่มผู้สมัคร</button>
+    <button class="btn-save" onclick="saveCands()">💾 บันทึกและซิงค์ Firebase</button>
     <button class="btn-back" onclick="goto('splash')">← กลับ</button>
   </div>
   </div>
@@ -382,14 +357,14 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);hei
 
 <!-- ===== BOOTH SELECT ===== -->
 <div id="booth-select" class="screen">
-  <h2 style="font-family:'Kanit',sans-serif;font-size:1.4rem;font-weight:800;color:var(--gold)">เลือกคูหา</h2>
-  <div style="display:flex;flex-direction:column;gap:0.8rem;width:100%;max-width:320px">
-    <button class="menu-btn" onclick="openBooth(1)">
-      <div class="menu-icon mi-blue" style="font-family:'Kanit',sans-serif;font-weight:900;font-size:1.4rem;width:46px;height:46px">1</div>
+  <h2 style="font-family:'Kanit',sans-serif;font-size:1.5rem;font-weight:800;color:var(--gold);">เลือกคูหา</h2>
+  <div class="booth-sel-btns">
+    <button class="splash-btn" onclick="openBooth(1)">
+      <div class="sb-icon blue" style="font-size:1.6rem;font-family:'Kanit',sans-serif;font-weight:900;width:50px;height:50px">1</div>
       <div><span>คูหาที่ 1</span><small>iPad เครื่องที่ 1</small></div>
     </button>
-    <button class="menu-btn" onclick="openBooth(2)">
-      <div class="menu-icon mi-blue" style="font-family:'Kanit',sans-serif;font-weight:900;font-size:1.4rem;width:46px;height:46px">2</div>
+    <button class="splash-btn" onclick="openBooth(2)">
+      <div class="sb-icon blue" style="font-size:1.6rem;font-family:'Kanit',sans-serif;font-weight:900;width:50px;height:50px">2</div>
       <div><span>คูหาที่ 2</span><small>iPad เครื่องที่ 2</small></div>
     </button>
   </div>
@@ -398,454 +373,418 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);hei
 
 <!-- ===== BOOTH VOTING ===== -->
 <div id="booth-vote" class="screen">
-  <div class="booth-header">
-    <div class="bh-left">
-      <h3 id="bh-title">คูหาที่ 1</h3>
-      <p id="bh-count">ลงคะแนนแล้ว 0 คน</p>
+  <div class="booth-top">
+    <div class="booth-top-left">
+      <h3 id="booth-title-text">คูหาที่ 1</h3>
+      <p id="booth-count-text">ลงคะแนนแล้ว 0 คน</p>
     </div>
-    <div class="live-pill"><div class="live-dot"></div>LIVE</div>
+    <div class="live-badge"><div class="live-dot"></div>LIVE</div>
   </div>
-  <div class="closed-bar" id="closed-bar">🔒 ปิดการลงคะแนนชั่วคราว</div>
-  <div class="booth-scroll">
-    <div class="booth-hint">👇 กดเลือกผู้สมัคร 1 คน</div>
-    <div class="cands-grid" id="cands-grid"></div>
-  </div>
-  <div class="booth-footer">
-    <button class="btn-confirm" id="btn-confirm" onclick="castVote()">✓ ลงคะแนน</button>
+  <div class="booth-closed-banner" id="booth-closed-banner">🔒 ปิดการลงคะแนนชั่วคราว</div>
+  <div class="booth-scroll" id="booth-scroll">
+    <div class="booth-instruction">👇 กดที่รูปเพื่อเลือก — โหวตทันที!</div>
+    <div class="cands-big-grid" id="cands-big-grid"></div>
   </div>
 </div>
 
-<!-- ===== VOTED ===== -->
-<div id="voted-screen" class="screen">
-  <div class="voted-big-icon">✅</div>
-  <div class="voted-title">ลงคะแนนสำเร็จ!</div>
-  <div style="color:var(--gray2);font-size:1rem">ขอบคุณที่ใช้สิทธิ์เลือกตั้ง</div>
-  <div class="voted-for" id="voted-for">—</div>
-  <button class="btn-next" onclick="nextVoter()">👤 ผู้ลงคะแนนคนถัดไป</button>
-  <button class="btn-back" style="margin-top:0.2rem" onclick="goto('splash')">← หน้าหลัก</button>
-</div>
-
-<!-- ===== DISPLAY NEWS MODE ===== -->
+<!-- ===== DISPLAY TV ===== -->
 <div id="display-mode" class="screen">
-  <!-- TOP BAR -->
-  <div class="news-topbar">
-    <div class="ntb-left">
-      <div class="ntb-logo">VOTE</div>
-      <div class="ntb-title">ผลการนับคะแนนเลือกตั้ง</div>
-    </div>
-    <div class="ntb-right">
-      <div class="ntb-total">รวม <span id="disp-total">0</span> คะแนน</div>
-      <div class="ntb-live">● LIVE</div>
-      <div class="ntb-time" id="ntb-time"></div>
+  <div class="disp-header">
+    <h1>🗳️ ผลการเลือกตั้ง</h1>
+    <div style="display:flex;align-items:center;gap:0.8rem">
+      <div class="live-badge"><div class="live-dot"></div>LIVE</div>
+      <div class="total-pill">รวม <span id="disp-total">0</span> คะแนน</div>
     </div>
   </div>
-  <!-- WINNER STRIP -->
-  <div class="winner-strip" id="winner-strip">
-    <div class="ws-label">🏆 นำอยู่</div>
-    <span class="ws-trophy"></span>
-    <span class="ws-name" id="ws-name">—</span>
-    <span class="ws-votes" id="ws-votes">—</span>
+  <div class="disp-body">
+    <div class="winner-section" id="winner-section">
+      <span class="winner-trophy">🏆</span>
+      <div>
+        <div class="winner-name-disp" id="winner-name-disp">—</div>
+        <div class="winner-votes-disp" id="winner-votes-disp">—</div>
+      </div>
+    </div>
+    <div class="result-rows" id="result-rows"></div>
   </div>
-  <!-- RESULTS -->
-  <div class="results-body">
-    <div class="results-grid" id="results-grid"></div>
-  </div>
-  <!-- TICKER -->
-  <div class="news-ticker">
-    <div class="ticker-label">📡 LIVE</div>
-    <div class="ticker-track"><div class="ticker-text" id="ticker-text">กำลังรอข้อมูล...</div></div>
-  </div>
-  <!-- FOOTER -->
-  <div class="disp-footer">
+  <div style="padding:0.8rem 1.5rem;border-top:1px solid var(--border);flex-shrink:0;display:flex;justify-content:space-between;align-items:center;">
     <button class="btn-back" style="margin:0" onclick="goto('splash')">← กลับ</button>
-    <div style="font-size:0.68rem;color:var(--gray)">ข้อมูลอัปเดตอัตโนมัติ real-time ผ่าน Firebase</div>
+    <div style="font-size:0.72rem;color:var(--gray)">อัปเดต real-time อัตโนมัติ</div>
   </div>
 </div>
 
 <!-- ===== ADMIN ===== -->
 <div id="admin-panel" class="screen">
-  <div class="admin-header">
+  <div class="admin-top">
     <button class="btn-back" style="margin:0" onclick="goto('splash')">←</button>
     <h2>🛡️ Admin Panel</h2>
   </div>
   <div class="admin-body">
-    <div class="stats3">
-      <div class="sbox"><div class="sv" id="adm-total">0</div><div class="sl">คะแนนรวม</div></div>
-      <div class="sbox"><div class="sv" id="adm-b1">0</div><div class="sl">คูหา 1</div></div>
-      <div class="sbox"><div class="sv" id="adm-b2">0</div><div class="sl">คูหา 2</div></div>
+    <div class="stats-row">
+      <div class="stat-box"><div class="sv" id="adm-total">0</div><div class="sl">คะแนนรวม</div></div>
+      <div class="stat-box"><div class="sv" id="adm-b1">0</div><div class="sl">คูหา 1</div></div>
+      <div class="stat-box"><div class="sv" id="adm-b2">0</div><div class="sl">คูหา 2</div></div>
     </div>
-    <div class="slabel">สถานะการโหวต</div>
-    <div class="vote-toggle-row">
-      <span id="vt-lbl">เปิดรับการโหวต</span>
-      <button class="tsw on" id="tsw" onclick="toggleVoting()"></button>
+    <div class="sec-label">สถานะการโหวต</div>
+    <div class="voting-toggle">
+      <span id="vote-status-lbl">เปิดรับการโหวต</span>
+      <button class="toggle-sw on" id="toggle-btn" onclick="toggleVoting()"></button>
     </div>
-    <div class="slabel">ผลคะแนน</div>
-    <table class="adm-table">
+    <div class="sec-label">ผลคะแนน</div>
+    <table class="admin-table">
       <thead><tr><th>#</th><th>ผู้สมัคร</th><th>คะแนน</th><th>%</th></tr></thead>
       <tbody id="adm-tbody"></tbody>
     </table>
-    <div class="slabel">การจัดการ</div>
-    <div class="adm-btns">
-      <button class="abtn red" onclick="confirmReset()">🗑 รีเซ็ตคะแนนทั้งหมด</button>
-      <button class="abtn blue" onclick="goto('display-mode')">📺 จอแสดงผล</button>
+    <div class="sec-label">การจัดการ</div>
+    <div class="adm-actions">
+      <button class="btn-adm red" onclick="confirmReset()">🗑 รีเซ็ตคะแนนทั้งหมด</button>
+      <button class="btn-adm blue" onclick="goto('display-mode')">📺 จอแสดงผล</button>
     </div><br>
   </div>
 </div>
 
+<!-- ===== SUCCESS POPUP ===== -->
+<div class="success-popup-ov" id="success-popup-ov">
+  <div class="success-popup" id="success-popup">
+    <div class="success-band" id="success-band"></div>
+    <span class="success-icon">✅</span>
+    <div class="success-title">ลงคะแนนแล้ว!</div>
+    <div class="success-sub">บันทึกคะแนนสำเร็จ</div>
+    <span class="success-cand" id="success-cand-name">—</span>
+    <div class="countdown-wrap">
+      <div class="countdown-ring">
+        <svg viewBox="0 0 36 36" width="36" height="36">
+          <circle cx="18" cy="18" r="15.9"/>
+          <circle class="progress" id="countdown-progress" cx="18" cy="18" r="15.9"
+            style="stroke-dasharray:100;stroke-dashoffset:100"/>
+        </svg>
+        <div class="countdown-num" id="countdown-num">3</div>
+      </div>
+      <span class="countdown-txt">ปิดอัตโนมัติ</span>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
-<input type="file" id="photo-input" accept="image/*" style="display:none">
+<input type="file" id="photo-file-input" accept="image/*" style="display:none">
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getDatabase, ref, set, get, onValue, push, serverTimestamp, increment }
+import { getDatabase, ref, set, onValue, push, serverTimestamp }
   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 import { getAuth, signInAnonymously }
   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-const FB = {
-  apiKey:"AIzaSyACtm5nYPb7VgVXMNyvht8utdXYpsZ3heU",
-  authDomain:"election-system-6646b.firebaseapp.com",
-  databaseURL:"https://election-system-6646b-default-rtdb.firebaseio.com",
-  projectId:"election-system-6646b",
-  storageBucket:"election-system-6646b.firebasestorage.app",
-  messagingSenderId:"241332155281",
-  appId:"1:241332155281:web:32e04094b2442f969b2030"
+const firebaseConfig = {
+  apiKey: "AIzaSyACtm5nYPb7VgVXMNyvht8utdXYpsZ3heU",
+  authDomain: "election-system-6646b.firebaseapp.com",
+  databaseURL: "https://election-system-6646b-default-rtdb.firebaseio.com",
+  projectId: "election-system-6646b",
+  storageBucket: "election-system-6646b.firebasestorage.app",
+  messagingSenderId: "241332155281",
+  appId: "1:241332155281:web:32e04094b2442f969b2030"
 };
-const COLORS=['#1d4ed8','#dc2626','#059669','#7c3aed','#d97706','#0e7490','#be185d','#92400e'];
 
-const app=initializeApp(FB);
-const db=getDatabase(app);
-const auth=getAuth(app);
+const COLORS = ['#1a4fba','#c0392b','#16a085','#8e44ad','#d35400','#27ae60','#2471a3','#a93226'];
 
-let uid=null, currentBooth=1, selectedId=null;
-let candidates=[], votes={}, boothCounts={1:0,2:0}, votingOpen=true;
-let localCands=[], photoCallback=null;
-let casting=false; // prevent double submit
+const app  = initializeApp(firebaseConfig);
+const db   = getDatabase(app);
+const auth = getAuth(app);
+
+let candidates = [];
+let votes = {};
+let boothCounts = {1:0,2:0};
+let votingOpen = true;
+let currentBooth = 1;
+let localCands = [];
+let photoInputCallback = null;
+let popupTimer = null;
+let isVoting = false; // prevent double tap
 
 // ===== INIT =====
-signInAnonymously(auth).then(c=>{
-  uid=c.user.uid;
-  document.getElementById('conn-msg').textContent='✓ เชื่อมต่อ Firebase สำเร็จ';
-  document.getElementById('conn-msg').style.color='var(--green2)';
-  const m=document.getElementById('splash-menu');
-  m.style.opacity='1';m.style.pointerEvents='auto';
-  startListeners();
-  startClock();
-}).catch(e=>{
-  document.getElementById('conn-msg').textContent='❌ '+e.message;
+signInAnonymously(auth).then(() => {
+  document.getElementById('conn-msg').textContent = 'เชื่อมต่อสำเร็จ ✓';
+  document.getElementById('conn-msg').style.color = 'var(--green)';
+  const btns = document.getElementById('splash-btns');
+  btns.style.opacity='1'; btns.style.pointerEvents='auto';
+  listenAll();
+}).catch(e => {
+  document.getElementById('conn-msg').textContent = '❌ ' + e.message;
 });
 
-function startClock(){
-  const el=document.getElementById('ntb-time');
-  if(!el)return;
-  el.style.display='block';
-  setInterval(()=>{
-    el.textContent=new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
-  },1000);
-}
-
-// ===== LISTENERS =====
-function startListeners(){
-  // Candidates
-  onValue(ref(db,'candidates'),snap=>{
-    candidates=snap.val()?Object.values(snap.val()):defaultCands();
-    localCands=JSON.parse(JSON.stringify(candidates));
-    renderSetupList();
+function listenAll() {
+  onValue(ref(db,'candidates'), snap => {
+    candidates = snap.val() ? Object.values(snap.val()) : defaultCands();
+    localCands = JSON.parse(JSON.stringify(candidates));
+    renderCandEditCards();
     renderBoothGrid();
     renderDisplay();
     renderAdminTable();
   });
-
-  // Votes — realtime counter approach: listen to voteCounts node
-  onValue(ref(db,'voteCounts'),snap=>{
-    votes={};
-    boothCounts={1:0,2:0};
-    if(snap.val()){
-      // voteCounts/candidateId = number
-      Object.entries(snap.val()).forEach(([k,v])=>{
-        if(k.startsWith('booth1_')) boothCounts[1]=(boothCounts[1]||0)+v;
-        else if(k.startsWith('booth2_')) boothCounts[2]=(boothCounts[2]||0)+v;
-        else{ const id=parseInt(k); if(!isNaN(id)) votes[id]=(votes[id]||0)+v; }
-      });
-    }
-    renderDisplay();
-    renderAdminTable();
-    updateBoothMeta();
+  onValue(ref(db,'votes'), snap => {
+    votes={}; boothCounts={1:0,2:0};
+    if(snap.val()) Object.values(snap.val()).forEach(v=>{
+      votes[v.candidateId]=(votes[v.candidateId]||0)+1;
+      if(v.boothId) boothCounts[v.boothId]=(boothCounts[v.boothId]||0)+1;
+    });
+    renderDisplay(); renderAdminTable(); updateStats();
   });
-
-  // Settings
-  onValue(ref(db,'settings/votingOpen'),snap=>{
-    votingOpen=snap.val()!==false;
+  onValue(ref(db,'settings/votingOpen'), snap=>{
+    votingOpen = snap.val()!==false;
     updateVotingUI();
   });
-
-  // Connection
-  onValue(ref(db,'.info/connected'),snap=>{
+  onValue(ref(db,'.info/connected'), snap=>{
     const bar=document.getElementById('conn-bar');
     if(snap.val()){
-      bar.textContent='✓ เชื่อมต่อ Firebase';bar.className='conn-bar on show';
-      setTimeout(()=>bar.classList.remove('show'),2000);
+      bar.textContent='✓ เชื่อมต่อ Firebase';bar.className='conn-bar online show';
+      setTimeout(()=>bar.classList.remove('show'),2500);
     } else {
-      bar.textContent='⚠️ ขาดการเชื่อมต่อ...';bar.className='conn-bar off show';
+      bar.textContent='⚠️ ขาดการเชื่อมต่อ...';bar.className='conn-bar offline show';
     }
   });
 }
 
 function defaultCands(){
-  return[
-    {id:1,name:'ผู้สมัคร หมายเลข 1',party:'พรรค A',color:'#1d4ed8',photo:''},
-    {id:2,name:'ผู้สมัคร หมายเลข 2',party:'พรรค B',color:'#dc2626',photo:''},
+  return [
+    {id:1,name:'ผู้สมัคร หมายเลข 1',party:'พรรค A',color:'#1a4fba',photo:''},
+    {id:2,name:'ผู้สมัคร หมายเลข 2',party:'พรรค B',color:'#c0392b',photo:''},
   ];
 }
 
-// ===== SCREENS =====
-window.goto=id=>{
+window.goto = id => {
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
 };
-window.gotoSetup=()=>{
-  localCands=JSON.parse(JSON.stringify(candidates));
-  renderSetupList();
-  goto('setup-cands');
-};
 
-// ===== SETUP =====
-function renderSetupList(){
-  const wrap=document.getElementById('cec-list');if(!wrap)return;
+// ===== CANDIDATE SETUP =====
+function renderCandEditCards(){
+  const wrap=document.getElementById('cand-edit-cards');if(!wrap)return;
   wrap.innerHTML='';
   localCands.forEach((c,i)=>{
-    const d=document.createElement('div');d.className='cec-card';
-    d.innerHTML=`
-      <div class="cec-num">#${c.id}</div>
-      <div class="cec-top">
-        <div class="cec-colorbar" id="ccb-${i}" style="background:${c.color||COLORS[i%COLORS.length]}"></div>
-        <div class="cec-photo" id="cpv-${i}" onclick="pickPhoto(${i})">
-          ${c.photo?`<img src="${c.photo}">`:'🧑'}
-          <div class="cec-photo-btn">📷</div>
+    const div=document.createElement('div');
+    div.className='cand-edit-card';
+    div.innerHTML=`
+      <div class="cand-num-label">#${c.id}</div>
+      <div class="cand-edit-top">
+        <div class="cand-color-bar" id="cbar-${i}" style="background:${c.color||COLORS[i%COLORS.length]}"></div>
+        <div class="cand-photo-wrap">
+          <div class="cand-photo-prev" id="cprev-${i}">
+            ${c.photo?`<img src="${c.photo}">`:'🧑'}
+          </div>
+          <button class="btn-photo-upload" onclick="pickPhoto(${i})">📷</button>
         </div>
-        <div class="cec-fields">
+        <div class="cand-fields">
           <input class="fi" value="${esc(c.name)}" placeholder="ชื่อผู้สมัคร" oninput="localCands[${i}].name=this.value">
           <input class="fi" value="${esc(c.party)}" placeholder="พรรค / กลุ่ม" oninput="localCands[${i}].party=this.value">
         </div>
       </div>
-      <div class="color-row" id="crow-${i}">
-        ${COLORS.map((col,ci)=>`<div class="cdot ${c.color===col?'active':''}" style="background:${col}" onclick="pickColor(${i},${ci})"></div>`).join('')}
+      <div style="padding-left:1.1rem">
+        <div style="font-size:0.75rem;color:var(--gray);margin-bottom:0.4rem">สีประจำตัว</div>
+        <div class="color-palette" id="cpal-${i}">
+          ${COLORS.map((col,ci)=>`<div class="color-dot ${c.color===col?'active':''}" style="background:${col}" onclick="pickColor(${i},${ci})"></div>`).join('')}
+        </div>
       </div>
-      ${localCands.length>2?`<button class="btn-del-cec" onclick="delCand(${i})">✕</button>`:''}
+      ${localCands.length>2?`<button class="btn-del-card" onclick="delCandCard(${i})">✕</button>`:''}
     `;
-    wrap.appendChild(d);
+    wrap.appendChild(div);
   });
 }
-window.pickColor=(ci,ki)=>{
-  localCands[ci].color=COLORS[ki];
-  const cb=document.getElementById(`ccb-${ci}`);if(cb)cb.style.background=COLORS[ki];
-  document.querySelectorAll(`#crow-${ci} .cdot`).forEach((d,k)=>d.classList.toggle('active',k===ki));
+window.pickColor=(ci,colorIdx)=>{
+  localCands[ci].color=COLORS[colorIdx];
+  document.getElementById(`cbar-${ci}`).style.background=COLORS[colorIdx];
+  document.querySelectorAll(`#cpal-${ci} .color-dot`).forEach((d,k)=>d.classList.toggle('active',k===colorIdx));
 };
 window.pickPhoto=(ci)=>{
-  photoCallback=(b64)=>{
+  photoInputCallback=(b64)=>{
     localCands[ci].photo=b64;
-    const p=document.getElementById(`cpv-${ci}`);
-    if(p)p.innerHTML=`<img src="${b64}"><div class="cec-photo-btn">📷</div>`;
+    const prev=document.getElementById(`cprev-${ci}`);
+    prev.innerHTML=`<img src="${b64}">`;
   };
-  document.getElementById('photo-input').click();
+  document.getElementById('photo-file-input').click();
 };
-document.getElementById('photo-input').addEventListener('change',e=>{
-  const f=e.target.files[0];if(!f||!photoCallback)return;
-  const r=new FileReader();
-  r.onload=ev=>{photoCallback(ev.target.result);photoCallback=null;};
-  r.readAsDataURL(f);e.target.value='';
+document.getElementById('photo-file-input').addEventListener('change',e=>{
+  const file=e.target.files[0];if(!file||!photoInputCallback)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{photoInputCallback(ev.target.result);photoInputCallback=null;};
+  reader.readAsDataURL(file);
+  e.target.value='';
 });
-window.addCand=()=>{
-  const n=localCands.length+1;
-  localCands.push({id:n,name:`ผู้สมัคร หมายเลข ${n}`,party:'—',color:COLORS[(n-1)%COLORS.length],photo:''});
-  renderSetupList();
+window.addCandCard=()=>{
+  const next=localCands.length+1;
+  localCands.push({id:next,name:`ผู้สมัคร หมายเลข ${next}`,party:'—',color:COLORS[(next-1)%COLORS.length],photo:''});
+  renderCandEditCards();
 };
-window.delCand=i=>{
-  if(localCands.length<=2){toast('ต้องมีอย่างน้อย 2 คน');return;}
-  localCands.splice(i,1);localCands.forEach((c,idx)=>c.id=idx+1);renderSetupList();
+window.delCandCard=i=>{
+  if(localCands.length<=2){toast('ต้องมีผู้สมัครอย่างน้อย 2 คน');return;}
+  localCands.splice(i,1);localCands.forEach((c,idx)=>c.id=idx+1);
+  renderCandEditCards();
 };
 window.saveCands=async()=>{
   const obj={};localCands.forEach(c=>obj[c.id]=c);
   await set(ref(db,'candidates'),obj);
-  await set(ref(db,'voteCounts'),null);
-  await set(ref(db,'voted'),null);
-  toast('บันทึกเรียบร้อย ✓');setTimeout(()=>goto('splash'),800);
+  await set(ref(db,'votes'),null);
+  toast('บันทึกผู้สมัครเรียบร้อย ✓');
+  setTimeout(()=>goto('splash'),900);
 };
 
 // ===== BOOTH =====
 window.openBooth=id=>{
-  currentBooth=id;selectedId=null;
-  document.getElementById('bh-title').textContent=`คูหาที่ ${id}`;
-  renderBoothGrid();goto('booth-vote');
+  currentBooth=id;
+  document.getElementById('booth-title-text').textContent=`คูหาที่ ${id}`;
+  renderBoothGrid();
+  goto('booth-vote');
 };
+
 function renderBoothGrid(){
-  const grid=document.getElementById('cands-grid');if(!grid)return;
+  const grid=document.getElementById('cands-big-grid');if(!grid)return;
   grid.innerHTML='';
   candidates.forEach(c=>{
-    const col=c.color||COLORS[(c.id-1)%COLORS.length];
+    const color=c.color||COLORS[(c.id-1)%COLORS.length];
     const card=document.createElement('div');
-    card.className='cand-card';card.setAttribute('data-cid',c.id);
-    card.style.background=`linear-gradient(165deg,${col}20 0%,${col}0a 100%)`;
-    card.style.borderColor=col+'33';
+    card.className='big-cand-card';
+    card.setAttribute('data-cid',c.id);
+    card.style.background=`linear-gradient(160deg,${color}22 0%,${color}0d 100%)`;
+    card.style.borderColor=`${color}55`;
     card.innerHTML=`
-      <div class="cc-band" style="background:${col}"></div>
-      <div class="cc-body">
-        <div class="cc-num" style="color:${col}">${c.id}</div>
-        <div class="cc-photo" style="border-color:${col}44">
+      <div class="card-band" style="background:${color}"></div>
+      <div class="card-body">
+        <div class="card-number" style="color:${color}">${c.id}</div>
+        <div class="card-photo" style="border-color:${color}66">
           ${c.photo?`<img src="${c.photo}">`:'🧑'}
         </div>
-        <div class="cc-name">${esc(c.name)}</div>
-        <div class="cc-party">${esc(c.party)}</div>
+        <div class="card-name">${esc(c.name)}</div>
+        <div class="card-party">${esc(c.party)}</div>
       </div>
-      <div class="cc-check">✓</div>
     `;
-    card.onclick=()=>selectCand(c.id,col);
+    card.addEventListener('click', ()=>castVote(c));
+    // touch feedback
+    card.addEventListener('touchstart',()=>card.style.transform='scale(0.96)',{passive:true});
+    card.addEventListener('touchend',()=>card.style.transform='',{passive:true});
     grid.appendChild(card);
   });
-  updateConfirmBtn();
 }
-function selectCand(id,col){
+
+// กดปุ๊บ = โหวตเลย ไม่มียืนยัน
+async function castVote(c){
   if(!votingOpen){toast('🔒 การโหวตถูกปิดชั่วคราว');return;}
-  selectedId=id;
-  document.querySelectorAll('.cand-card').forEach(card=>{
-    const cid=parseInt(card.getAttribute('data-cid'));
-    const c=candidates.find(x=>x.id===cid);
-    const c2=c?c.color||COLORS[(c.id-1)%COLORS.length]:'#fff';
-    if(cid===id){
-      card.classList.add('selected');
-      card.style.borderColor=c2;
-      card.style.boxShadow=`0 0 0 3px ${c2}44,0 12px 36px rgba(0,0,0,0.5)`;
-    } else {
-      card.classList.remove('selected');
-      card.style.borderColor=c2+'33';
-      card.style.boxShadow='';
-    }
-  });
-  updateConfirmBtn();
-}
-function updateConfirmBtn(){
-  const btn=document.getElementById('btn-confirm');if(!btn)return;
-  btn.classList.toggle('ready',!!selectedId&&votingOpen);
-}
+  if(isVoting) return; // กัน double tap
+  isVoting=true;
 
-// CAST VOTE — ไม่มี modal ส่งตรงเลย
-window.castVote=async()=>{
-  if(!selectedId||!votingOpen||casting)return;
-  casting=true;
-  const c=candidates.find(x=>x.id===selectedId);
-
-  // Lock per device per booth
-  const lockRef=ref(db,`voted/${currentBooth}/${uid}`);
-  const snap=await get(lockRef);
-  if(snap.exists()){
-    casting=false;
-    toast('⚠️ อุปกรณ์นี้ลงคะแนนในคูหานี้แล้ว');
-    document.getElementById('voted-for').textContent=`หมายเลข ${c.id} — ${c.name}`;
-    goto('voted-screen');return;
+  try {
+    await set(push(ref(db,'votes')),{
+      candidateId:c.id, boothId:currentBooth, ts:serverTimestamp()
+    });
+    showSuccessPopup(c);
+  } catch(e) {
+    toast('❌ บันทึกไม่สำเร็จ ลองใหม่');
   }
-
-  // Increment counter atomically
-  await set(ref(db,`voteCounts/${selectedId}`), increment(1));
-  await set(ref(db,`voteCounts/booth${currentBooth}_total`), increment(1));
-  await set(lockRef,{candidateId:selectedId,ts:Date.now()});
-
-  document.getElementById('voted-for').textContent=`หมายเลข ${c.id} — ${c.name}`;
-  selectedId=null;
-  casting=false;
-  goto('voted-screen');
-};
-
-window.nextVoter=()=>{selectedId=null;renderBoothGrid();goto('booth-vote');};
-
-function updateBoothMeta(){
-  const total=(boothCounts[1]||0)+(boothCounts[2]||0);
-  const el=document.getElementById('bh-count');
-  if(el)el.textContent=`ลงคะแนนแล้ว ${total} คน`;
-  const a=document.getElementById('adm-total');if(a)a.textContent=total;
-  const b1=document.getElementById('adm-b1');if(b1)b1.textContent=boothCounts[1]||0;
-  const b2=document.getElementById('adm-b2');if(b2)b2.textContent=boothCounts[2]||0;
+  isVoting=false;
 }
+
+// popup แสดง 3 วิ แล้วปิดเอง
+function showSuccessPopup(c){
+  const color=c.color||COLORS[(c.id-1)%COLORS.length];
+  document.getElementById('success-band').style.background=color;
+  document.getElementById('success-cand-name').textContent=`หมายเลข ${c.id}  —  ${c.name}`;
+  document.getElementById('success-cand-name').style.borderColor=`${color}55`;
+
+  const ov=document.getElementById('success-popup-ov');
+  ov.classList.add('show');
+
+  // countdown 3 วิ
+  let sec=3;
+  document.getElementById('countdown-num').textContent=sec;
+  const prog=document.getElementById('countdown-progress');
+  prog.style.transition='none';
+  prog.style.strokeDashoffset='100';
+  prog.style.stroke=color;
+
+  // start animation after paint
+  requestAnimationFrame(()=>{
+    requestAnimationFrame(()=>{
+      prog.style.transition='stroke-dashoffset 3s linear';
+      prog.style.strokeDashoffset='0';
+    });
+  });
+
+  if(popupTimer) clearInterval(popupTimer);
+  popupTimer=setInterval(()=>{
+    sec--;
+    document.getElementById('countdown-num').textContent=sec;
+    if(sec<=0){
+      clearInterval(popupTimer);
+      ov.classList.remove('show');
+    }
+  },1000);
+}
+
 function updateVotingUI(){
-  const bar=document.getElementById('closed-bar');if(bar)bar.classList.toggle('show',!votingOpen);
-  updateConfirmBtn();
-  const tsw=document.getElementById('tsw');const lbl=document.getElementById('vt-lbl');
-  if(tsw)tsw.className='tsw'+(votingOpen?' on':'');
-  if(lbl){lbl.textContent=votingOpen?'เปิดรับการโหวต':'ปิดการโหวตชั่วคราว';lbl.style.color=votingOpen?'var(--green2)':'var(--red2)';}
+  const banner=document.getElementById('booth-closed-banner');
+  const scroll=document.getElementById('booth-scroll');
+  if(banner) banner.classList.toggle('show',!votingOpen);
+  if(scroll) scroll.classList.toggle('booth-disabled',!votingOpen);
+  const btn=document.getElementById('toggle-btn');
+  const lbl=document.getElementById('vote-status-lbl');
+  if(btn) btn.className='toggle-sw'+(votingOpen?' on':'');
+  if(lbl){lbl.textContent=votingOpen?'เปิดรับการโหวต':'ปิดการโหวตชั่วคราว';lbl.style.color=votingOpen?'var(--green)':'var(--red-c)';}
 }
 
-// ===== DISPLAY — NEWS STYLE =====
+function updateStats(){
+  const total=(boothCounts[1]||0)+(boothCounts[2]||0);
+  const el=document.getElementById('booth-count-text');
+  if(el) el.textContent=`ลงคะแนนแล้ว ${total} คน`;
+  const at=document.getElementById('adm-total');if(at)at.textContent=total;
+  const a1=document.getElementById('adm-b1');if(a1)a1.textContent=boothCounts[1]||0;
+  const a2=document.getElementById('adm-b2');if(a2)a2.textContent=boothCounts[2]||0;
+}
+
+// ===== DISPLAY =====
 function renderDisplay(){
   const total=Object.values(votes).reduce((a,b)=>a+b,0);
-  const dtot=document.getElementById('disp-total');if(dtot)dtot.textContent=total;
+  const disp=document.getElementById('disp-total');if(disp)disp.textContent=total;
   const sorted=[...candidates].map(c=>({...c,votes:votes[c.id]||0})).sort((a,b)=>b.votes-a.votes);
-  const grid=document.getElementById('results-grid');if(!grid)return;
-
+  const rows=document.getElementById('result-rows');if(!rows)return;
   sorted.forEach((c,i)=>{
     const pct=total>0?Math.round(c.votes/total*100):0;
-    const col=c.color||COLORS[(c.id-1)%COLORS.length];
-    let row=document.getElementById(`nrr-${c.id}`);
+    const color=c.color||COLORS[(c.id-1)%COLORS.length];
+    let row=document.getElementById(`rr-${c.id}`);
     if(!row){
-      row=document.createElement('div');
-      row.id=`nrr-${c.id}`;
+      row=document.createElement('div');row.id=`rr-${c.id}`;row.className='result-row';
       row.innerHTML=`
-        <div class="rank-num ${i===0?'r1':i===1?'r2':''}" id="rn-${c.id}">${i+1}</div>
-        <div class="nrr-thumb" id="nth-${c.id}" style="border-color:${col}55">
-          ${c.photo?`<img src="${c.photo}">`:'🧑'}
-        </div>
-        <div class="nrr-info">
-          <div class="nrr-name" style="color:${col}">${esc(c.name)}</div>
-          <div class="nrr-party">${esc(c.party)}</div>
-        </div>
-        <div class="nrr-bar-area">
-          <div class="nrr-bar-bg"><div class="nrr-bar" id="nbar-${c.id}" style="width:${pct}%;background:${col}"></div></div>
-          <div class="nrr-meta">
-            <span id="npct-${c.id}">${pct}%</span>
-            <span id="nmeta-${c.id}">จาก ${total} คะแนน</span>
+        <div class="rr-rank ${i===0?'r1':i===1?'r2':i===2?'r3':''}" id="rrank-${c.id}">${i+1}</div>
+        <div class="rr-thumb" id="rthumb-${c.id}" style="border:2px solid ${color}55">${c.photo?`<img src="${c.photo}">`:'🧑'}</div>
+        <div class="rr-info">
+          <div class="rr-name">${esc(c.name)}</div><div class="rr-party">${esc(c.party)}</div>
+          <div class="rr-bar-wrap">
+            <div class="rr-bar-bg"><div class="rr-bar" id="rbar-${c.id}" style="width:${pct}%;background:${color}"></div></div>
+            <span class="rr-pct" id="rpct-${c.id}">${pct}%</span>
           </div>
         </div>
-        <div>
-          <div class="nrr-votes-big" id="nv-${c.id}" style="color:${col}">${c.votes}</div>
-          <div class="nrr-votes-label">คะแนน</div>
-        </div>
+        <div class="rr-votes" id="rvotes-${c.id}" style="color:${color}">${c.votes}</div>
       `;
-      row.className=`news-result-row${i===0?' rank-1':''}`;
-      row.style.setProperty('--rc',col);
-      row.querySelector('::before');
-      grid.appendChild(row);
+      rows.appendChild(row);
     } else {
-      const prev=parseInt(document.getElementById(`nv-${c.id}`).textContent)||0;
-      if(c.votes!==prev){
-        document.getElementById(`nv-${c.id}`).textContent=c.votes;
-        document.getElementById(`nv-${c.id}`).classList.remove('vote-bump');
-        void document.getElementById(`nv-${c.id}`).offsetWidth;
-        document.getElementById(`nv-${c.id}`).classList.add('vote-bump');
+      const prev=parseInt(document.getElementById(`rvotes-${c.id}`).textContent)||0;
+      document.getElementById(`rvotes-${c.id}`).textContent=c.votes;
+      if(c.votes>prev){
+        document.getElementById(`rvotes-${c.id}`).classList.remove('vote-bump');
+        void document.getElementById(`rvotes-${c.id}`).offsetWidth;
+        document.getElementById(`rvotes-${c.id}`).classList.add('vote-bump');
       }
-      document.getElementById(`nbar-${c.id}`).style.width=pct+'%';
-      document.getElementById(`npct-${c.id}`).textContent=pct+'%';
-      document.getElementById(`nmeta-${c.id}`).textContent=`จาก ${total} คะแนน`;
-      row.className=`news-result-row${i===0?' rank-1':''}`;
-      const rn=document.getElementById(`rn-${c.id}`);
-      if(rn){rn.textContent=i+1;rn.className=`rank-num ${i===0?'r1':i===1?'r2':''}`;}
-      const th=document.getElementById(`nth-${c.id}`);
+      document.getElementById(`rbar-${c.id}`).style.width=pct+'%';
+      document.getElementById(`rpct-${c.id}`).textContent=pct+'%';
+      row.className='result-row'+(i===0?' rank-1':'');
+      const rk=document.getElementById(`rrank-${c.id}`);
+      rk.textContent=i+1;rk.className=`rr-rank ${i===0?'r1':i===1?'r2':i===2?'r3':''}`;
+      const th=document.getElementById(`rthumb-${c.id}`);
       if(th)th.innerHTML=c.photo?`<img src="${c.photo}">`:'🧑';
     }
-    grid.appendChild(row);
+    rows.appendChild(row);
   });
-
-  // Winner strip
   if(sorted.length>0&&sorted[0].votes>0){
-    document.getElementById('ws-name').textContent=sorted[0].name;
-    document.getElementById('ws-votes').textContent=`${sorted[0].votes} คะแนน · ${total>0?Math.round(sorted[0].votes/total*100):0}%`;
-    document.getElementById('winner-strip').classList.add('show');
-  } else {
-    document.getElementById('winner-strip').classList.remove('show');
-  }
-
-  // Ticker
-  const ticker=document.getElementById('ticker-text');
-  if(ticker&&sorted.length>0){
-    ticker.textContent=sorted.map(c=>`หมายเลข ${c.id} ${c.name} — ${votes[c.id]||0} คะแนน`).join('   ·   ');
-  }
+    document.getElementById('winner-name-disp').textContent=sorted[0].name;
+    document.getElementById('winner-votes-disp').textContent=`${sorted[0].votes} คะแนน (${total>0?Math.round(sorted[0].votes/total*100):0}%)`;
+    document.getElementById('winner-section').classList.add('show');
+  } else { document.getElementById('winner-section').classList.remove('show'); }
 }
 
 // ===== ADMIN =====
@@ -856,12 +795,12 @@ function renderAdminTable(){
   tbody.innerHTML='';
   sorted.forEach((c,i)=>{
     const pct=total>0?Math.round(c.votes/total*100):0;
-    const col=c.color||COLORS[(c.id-1)%COLORS.length];
+    const color=c.color||COLORS[(c.id-1)%COLORS.length];
     const tr=document.createElement('tr');
     tr.innerHTML=`<td>${i+1}</td>
-      <td><span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:${col};margin-right:5px;vertical-align:middle"></span><strong>${esc(c.name)}</strong></td>
-      <td style="font-family:'Kanit',sans-serif;font-weight:800;font-size:1rem;color:${col}">${c.votes}</td>
-      <td style="color:var(--gray2)">${pct}%</td>`;
+      <td><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${color};margin-right:6px"></span><strong>${esc(c.name)}</strong></td>
+      <td style="font-family:'Kanit',sans-serif;font-size:1.1rem;font-weight:800;color:${color}">${c.votes}</td>
+      <td style="color:var(--gray)">${pct}%</td>`;
     tbody.appendChild(tr);
   });
 }
@@ -870,17 +809,15 @@ window.toggleVoting=async()=>{
   toast(votingOpen?'✅ เปิดการโหวตแล้ว':'🔒 ปิดการโหวตแล้ว');
 };
 window.confirmReset=()=>{
-  if(confirm('⚠️ ลบคะแนนทั้งหมด?\nไม่สามารถย้อนกลับได้'))resetAll();
+  if(confirm('⚠️ ลบคะแนนทั้งหมด?\nไม่สามารถย้อนกลับได้')) resetAll();
 };
 async function resetAll(){
-  await set(ref(db,'voteCounts'),null);
-  await set(ref(db,'voted'),null);
+  await set(ref(db,'votes'),null);
   toast('🗑 รีเซ็ตเรียบร้อย');
 }
 
-// ===== UTILS =====
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-function toast(msg,dur=2600){
+function toast(msg,dur=2800){
   const t=document.getElementById('toast');
   t.textContent=msg;t.classList.add('show');
   setTimeout(()=>t.classList.remove('show'),dur);
