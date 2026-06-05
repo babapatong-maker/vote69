@@ -850,6 +850,7 @@ function sanitizeCandidate(raw, fallbackId){
 function normalizeCandidates(raw){
   const list = Array.isArray(raw) ? raw : Object.values(raw || {});
   return list
+    .filter(cand => cand && typeof cand === 'object')
     .map((cand, idx) => sanitizeCandidate(cand, idx + 1))
     .sort((a,b)=>a.id-b.id);
 }
@@ -924,7 +925,7 @@ function listenAll() {
     const rawVotes = snap.val() || loadCachedVotes();
     cacheVotes(rawVotes);
     votes={}; boothCounts={1:0,2:0};
-    if(rawVotes) Object.values(rawVotes).forEach(v=>{
+    if(rawVotes) Object.values(rawVotes).filter(v=>v && v.candidateId != null).forEach(v=>{
       votes[v.candidateId]=(votes[v.candidateId]||0)+1;
       if(v.boothId) boothCounts[v.boothId]=(boothCounts[v.boothId]||0)+1;
     });
@@ -1342,13 +1343,6 @@ window.toggleVoting=async()=>{
   await set(ref(db,'settings/votingOpen'),!votingOpen);
   toast(votingOpen?'✅ เปิดการโหวตแล้ว':'🔒 ปิดการโหวตแล้ว');
 };
-window.confirmReset=()=>{
-  if(confirm('⚠️ ลบคะแนนทั้งหมด?\nไม่สามารถย้อนกลับได้')) resetAll();
-};
-async function resetAll(){
-  await set(ref(db,'votes'),null);
-  toast('🗑 รีเซ็ตเรียบร้อย');
-}
 
 window.confirmReset=()=>{
   if(!confirm('ยืนยันรีเซ็ตคะแนนทั้งหมด?')) return;
