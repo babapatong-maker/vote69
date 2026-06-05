@@ -821,6 +821,9 @@ const COLORS = ['#1a4fba','#c0392b','#16a085','#8e44ad','#d35400','#27ae60','#24
 const app  = initializeApp(firebaseConfig);
 const db   = getDatabase(app);
 const auth = getAuth(app);
+const CANDS_CACHE_KEY = 'vote69:candidates:v1';
+const VOTES_CACHE_KEY = 'vote69:votes:v1';
+const RESET_PASSWORD = '88888888';
 
 let candidates = [];
 let votes = {};
@@ -831,6 +834,68 @@ let localCands = [];
 let photoInputCallback = null;
 let popupTimer = null;
 let isVoting = false; // prevent double tap
+
+function sanitizeCandidate(raw, fallbackId){
+  const parsedId = parseInt(raw?.id, 10);
+  const id = Number.isFinite(parsedId) && parsedId > 0 ? parsedId : fallbackId;
+  return {
+    id,
+    name: String(raw?.name || `ผู้สมัคร หมายเลข ${id}`).trim() || `ผู้สมัคร หมายเลข ${id}`,
+    party: String(raw?.party || '—').trim() || '—',
+    color: raw?.color || COLORS[(id-1)%COLORS.length],
+    photo: raw?.photo || ''
+  };
+}
+
+function normalizeCandidates(raw){
+  const list = Array.isArray(raw) ? raw : Object.values(raw || {});
+  return list
+    .map((cand, idx) => sanitizeCandidate(cand, idx + 1))
+    .sort((a,b)=>a.id-b.id);
+}
+
+function loadCachedCandidates(){
+  try{
+    const raw = localStorage.getItem(CANDS_CACHE_KEY);
+    if(!raw) return null;
+    const parsed = JSON.parse(raw);
+    const normalized = normalizeCandidates(parsed);
+    return normalized.length ? normalized : null;
+  }catch{
+    return null;
+  }
+}
+
+function cacheCandidates(list){
+  try{
+    localStorage.setItem(CANDS_CACHE_KEY, JSON.stringify(normalizeCandidates(list)));
+  }catch{}
+}
+
+function loadCachedVotes(){
+  try{
+    const raw = localStorage.getItem(VOTES_CACHE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  }catch{
+    return null;
+  }
+}
+
+function cacheVotes(rawVotes){
+  try{
+    if(rawVotes && Object.keys(rawVotes).length){
+      localStorage.setItem(VOTES_CACHE_KEY, JSON.stringify(rawVotes));
+    }else{
+      localStorage.removeItem(VOTES_CACHE_KEY);
+    }
+  }catch{}
+}
+
+function clearVotesCache(){
+  try{
+    localStorage.removeItem(VOTES_CACHE_KEY);
+  }catch{}
+}
 
 // ===== INIT =====
 signInAnonymously(auth).then(() => {
@@ -845,7 +910,9 @@ signInAnonymously(auth).then(() => {
 
 function listenAll() {
   onValue(ref(db,'candidates'), snap => {
-    candidates = snap.val() ? Object.values(snap.val()) : defaultCands();
+    const remote = snap.val();
+    candidates = remote ? normalizeCandidates(remote) : (loadCachedCandidates() || defaultCands());
+    cacheCandidates(candidates);
     window._updateSmsCands && window._updateSmsCands(candidates);
     localCands = JSON.parse(JSON.stringify(candidates));
     renderCandEditCards();
@@ -854,8 +921,10 @@ function listenAll() {
     renderAdminTable();
   });
   onValue(ref(db,'votes'), snap => {
+    const rawVotes = snap.val() || loadCachedVotes();
+    cacheVotes(rawVotes);
     votes={}; boothCounts={1:0,2:0};
-    if(snap.val()) Object.values(snap.val()).forEach(v=>{
+    if(rawVotes) Object.values(rawVotes).forEach(v=>{
       votes[v.candidateId]=(votes[v.candidateId]||0)+1;
       if(v.boothId) boothCounts[v.boothId]=(boothCounts[v.boothId]||0)+1;
     });
@@ -906,6 +975,7 @@ function renderCandEditCards(){
           <button class="btn-photo-upload" onclick="pickPhoto(${i})">📷</button>
         </div>
         <div class="cand-fields">
+          <input class="fi" type="number" min="1" step="1" value="${c.id}" placeholder="หมายเลขผู้สมัคร" oninput="localCands[${i}].id=this.value">
           <input class="fi" value="${esc(c.name)}" placeholder="ชื่อผู้สมัคร" oninput="localCands[${i}].name=this.value">
           <input class="fi" value="${esc(c.party)}" placeholder="พรรค / กลุ่ม" oninput="localCands[${i}].party=this.value">
         </div>
@@ -942,21 +1012,43 @@ document.getElementById('photo-file-input').addEventListener('change',e=>{
   e.target.value='';
 });
 window.addCandCard=()=>{
-  const next=localCands.length+1;
+  const next=Math.max(0,...localCands.map(c=>parseInt(c.id,10)||0))+1;
   localCands.push({id:next,name:`ผู้สมัคร หมายเลข ${next}`,party:'—',color:COLORS[(next-1)%COLORS.length],photo:''});
   renderCandEditCards();
 };
 window.delCandCard=i=>{
   if(localCands.length<=2){toast('ต้องมีผู้สมัครอย่างน้อย 2 คน');return;}
-  localCands.splice(i,1);localCands.forEach((c,idx)=>c.id=idx+1);
+  localCands.splice(i,1);
   renderCandEditCards();
 };
 window.saveCands=async()=>{
-  const obj={};localCands.forEach(c=>obj[c.id]=c);
-  await set(ref(db,'candidates'),obj);
-  await set(ref(db,'votes'),null);
-  toast('บันทึกผู้สมัครเรียบร้อย ✓');
-  setTimeout(()=>goto('splash'),900);
+  const normalized = normalizeCandidates(localCands);
+  const ids = normalized.map(c=>c.id);
+  if(new Set(ids).size !== ids.length){
+    toast('หมายเลขผู้สมัครห้ามซ้ำกัน');
+    return;
+  }
+
+  const obj={};
+  normalized.forEach(c=>obj[c.id]=c);
+  cacheCandidates(normalized);
+  candidates = JSON.parse(JSON.stringify(normalized));
+  localCands = JSON.parse(JSON.stringify(normalized));
+  renderCandEditCards();
+  renderBoothGrid();
+  renderDisplay();
+  renderAdminTable();
+
+  try{
+    await set(ref(db,'candidates'),obj);
+    clearVotesCache();
+    await set(ref(db,'votes'),null);
+    toast('บันทึกผู้สมัครเรียบร้อย');
+    setTimeout(()=>goto('splash'),900);
+  }catch(e){
+    toast('บันทึกลงเครื่องแล้ว แต่ซิงก์ Firebase ไม่สำเร็จ');
+    console.error(e);
+  }
 };
 
 // ===== BOOTH =====
@@ -970,7 +1062,7 @@ window.openBooth=id=>{
 function renderBoothGrid(){
   const grid=document.getElementById('cands-big-grid');if(!grid)return;
   grid.innerHTML='';
-  candidates.forEach(c=>{
+  [...candidates].sort((a,b)=>a.id-b.id).forEach(c=>{
     const color=c.color||COLORS[(c.id-1)%COLORS.length];
     const card=document.createElement('div');
     card.className='big-cand-card';
@@ -1084,7 +1176,7 @@ function renderDisplay(){
 
   const sorted = [...candidates]
     .map(c=>({...c, votes: votes[c.id]||0}))
-    .sort((a,b)=>b.votes-a.votes);
+    .sort((a,b)=>b.votes-a.votes || a.id-b.id);
 
   const maxVotes = sorted[0]?.votes || 1;
   const isFirstRender = container.children.length === 0;
@@ -1233,7 +1325,7 @@ setInterval(()=>{
 function renderAdminTable(){
   const tbody=document.getElementById('adm-tbody');if(!tbody)return;
   const total=Object.values(votes).reduce((a,b)=>a+b,0);
-  const sorted=[...candidates].map(c=>({...c,votes:votes[c.id]||0})).sort((a,b)=>b.votes-a.votes);
+  const sorted=[...candidates].map(c=>({...c,votes:votes[c.id]||0})).sort((a,b)=>b.votes-a.votes || a.id-b.id);
   tbody.innerHTML='';
   sorted.forEach((c,i)=>{
     const pct=total>0?Math.round(c.votes/total*100):0;
@@ -1256,6 +1348,23 @@ window.confirmReset=()=>{
 async function resetAll(){
   await set(ref(db,'votes'),null);
   toast('🗑 รีเซ็ตเรียบร้อย');
+}
+
+window.confirmReset=()=>{
+  if(!confirm('ยืนยันรีเซ็ตคะแนนทั้งหมด?')) return;
+  const pass = prompt('กรุณาใส่รหัสสำหรับรีเซ็ตคะแนน');
+  if(pass === null) return;
+  if(pass !== RESET_PASSWORD){
+    toast('รหัสไม่ถูกต้อง');
+    return;
+  }
+  resetAll();
+};
+
+async function resetAll(){
+  clearVotesCache();
+  await set(ref(db,'votes'),null);
+  toast('รีเซ็ตคะแนนเรียบร้อย');
 }
 
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
