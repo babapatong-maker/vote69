@@ -976,9 +976,9 @@ function renderCandEditCards(){
           <button class="btn-photo-upload" onclick="pickPhoto(${i})">📷</button>
         </div>
         <div class="cand-fields">
-          <input class="fi" type="number" min="1" step="1" value="${c.id}" placeholder="หมายเลขผู้สมัคร" oninput="localCands[${i}].id=this.value">
-          <input class="fi" value="${esc(c.name)}" placeholder="ชื่อผู้สมัคร" oninput="localCands[${i}].name=this.value">
-          <input class="fi" value="${esc(c.party)}" placeholder="พรรค / กลุ่ม" oninput="localCands[${i}].party=this.value">
+          <input class="fi" type="number" min="1" step="1" value="${c.id}" placeholder="หมายเลขผู้สมัคร" oninput="updateCandField(${i},'id',this.value)">
+          <input class="fi" value="${esc(c.name)}" placeholder="ชื่อผู้สมัคร" oninput="updateCandField(${i},'name',this.value)">
+          <input class="fi" value="${esc(c.party)}" placeholder="พรรค / กลุ่ม" oninput="updateCandField(${i},'party',this.value)">
         </div>
       </div>
       <div style="padding-left:1.1rem">
@@ -992,6 +992,14 @@ function renderCandEditCards(){
     wrap.appendChild(div);
   });
 }
+window.updateCandField=(ci,field,value)=>{
+  if(!localCands[ci]) return;
+  localCands[ci][field]=value;
+  if(field==='id'){
+    const label=document.querySelectorAll('.cand-num-label')[ci];
+    if(label) label.textContent=`#${value||'-'}`;
+  }
+};
 window.pickColor=(ci,colorIdx)=>{
   localCands[ci].color=COLORS[colorIdx];
   document.getElementById(`cbar-${ci}`).style.background=COLORS[colorIdx];
