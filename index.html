@@ -822,7 +822,6 @@ const app  = initializeApp(firebaseConfig);
 const db   = getDatabase(app);
 const auth = getAuth(app);
 const CANDS_CACHE_KEY = 'vote69:candidates:v1';
-const VOTES_CACHE_KEY = 'vote69:votes:v1';
 const RESET_PASSWORD = '88888888';
 
 let candidates = [];
@@ -873,31 +872,6 @@ function cacheCandidates(list){
   }catch{}
 }
 
-function loadCachedVotes(){
-  try{
-    const raw = localStorage.getItem(VOTES_CACHE_KEY);
-    return raw ? JSON.parse(raw) : null;
-  }catch{
-    return null;
-  }
-}
-
-function cacheVotes(rawVotes){
-  try{
-    if(rawVotes && Object.keys(rawVotes).length){
-      localStorage.setItem(VOTES_CACHE_KEY, JSON.stringify(rawVotes));
-    }else{
-      localStorage.removeItem(VOTES_CACHE_KEY);
-    }
-  }catch{}
-}
-
-function clearVotesCache(){
-  try{
-    localStorage.removeItem(VOTES_CACHE_KEY);
-  }catch{}
-}
-
 // ===== INIT =====
 signInAnonymously(auth).then(() => {
   document.getElementById('conn-msg').textContent = 'เชื่อมต่อสำเร็จ ✓';
@@ -922,8 +896,7 @@ function listenAll() {
     renderAdminTable();
   });
   onValue(ref(db,'votes'), snap => {
-    const rawVotes = snap.val() || loadCachedVotes();
-    cacheVotes(rawVotes);
+    const rawVotes = snap.val();
     votes={}; boothCounts={1:0,2:0};
     if(rawVotes) Object.values(rawVotes).filter(v=>v && v.candidateId != null).forEach(v=>{
       votes[v.candidateId]=(votes[v.candidateId]||0)+1;
@@ -1050,8 +1023,6 @@ window.saveCands=async()=>{
 
   try{
     await set(ref(db,'candidates'),obj);
-    clearVotesCache();
-    await set(ref(db,'votes'),null);
     toast('บันทึกผู้สมัครเรียบร้อย');
     setTimeout(()=>goto('splash'),900);
   }catch(e){
@@ -1364,7 +1335,6 @@ window.confirmReset=()=>{
 };
 
 async function resetAllProtected(){
-  clearVotesCache();
   await set(ref(db,'votes'),null);
   toast('รีเซ็ตคะแนนเรียบร้อย');
 }
