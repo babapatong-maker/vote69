@@ -1358,10 +1358,10 @@ window.confirmReset=()=>{
     toast('รหัสไม่ถูกต้อง');
     return;
   }
-  resetAll();
+  resetAllProtected();
 };
 
-async function resetAll(){
+async function resetAllProtected(){
   clearVotesCache();
   await set(ref(db,'votes'),null);
   toast('รีเซ็ตคะแนนเรียบร้อย');
